@@ -9,9 +9,9 @@ pub struct Validator {
 impl Validator {
     fn write_file(&self) -> Result<File, Error> {
         let mut file: File = OpenOptions::new()
-        .write(true)
-        .append(true)
-        .open(&self.output_file)?;
+            .write(true)
+            .append(true)
+            .open(&self.output_file)?;
 
         for token in &self.tokens {
             writeln!(file, "{}", token)?;
