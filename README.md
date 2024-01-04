@@ -5,10 +5,10 @@ This is a simple compiler that prepare files for be using in SiCoMe simulator re
 ## Installation
 
 ```bash
-  mkdir build
-  cd build
-  cmake ..
-  make
+mkdir build
+cd build
+cmake ..
+make
 ```
 
 ## How to use
