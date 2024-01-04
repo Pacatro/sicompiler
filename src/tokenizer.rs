@@ -7,9 +7,7 @@ pub struct Tokenizer {
 
 impl Tokenizer {
     fn remove_comments(&self, line: &mut String) {
-        if line.is_empty() || !line.contains(';') {
-            return;
-        }
+        if line.is_empty() || !line.contains(';') { return }
 
         line.drain(line.find(';').unwrap()..);
         *line = line.trim_end().to_string();
@@ -21,9 +19,7 @@ impl Tokenizer {
         let mut tokens: Vec<String> = Vec::new();
         let content: String = fs::read_to_string(&self.input)?;
 
-        if content.is_empty() {
-            return Ok(tokens);
-        }
+        if content.is_empty() { return Ok(tokens) }
         
         for line in content.lines() {
             let mut string_line: String = line.to_string();
