@@ -57,7 +57,7 @@ A program is divided into three clearly differentiated sections, each of them se
 - JMPI dir
 - HALT
 
-## Errors cases :warning:
+## Error cases :warning:
 
 - If the sequence of tokens does not contain the 'HALT' instruction.
 - If any instruction in the sequence is not a valid predefined token.
