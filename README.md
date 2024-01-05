@@ -2,7 +2,7 @@
 
 This is a simple compiler that prepare files for be using in SiCoMe simulator realized by the University of Cordoba (UCO).
 
-## How to use
+## How to use :pencil2:
 
 The only thing you need to do is write the next command in the directory you have the executable
 
@@ -12,7 +12,7 @@ The only thing you need to do is write the next command in the directory you hav
 
 The result will be an output file with the name you write in the same directory you are.
 
-## Standars
+## Standars :books:
 
 > [!NOTE]
 > This stardars will be updates.
