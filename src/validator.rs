@@ -24,7 +24,9 @@ impl Validator {
         Ok(())
     }
 
-    fn get_num_params(&self, instruction: &Vec<&str>) -> usize { instruction.len() - 1 }
+    fn valid_params(&self, params: &Vec<&str>) -> bool {
+        params.iter().next().unwrap().chars().next().unwrap().is_ascii_hexdigit()
+    }
     
     /// Creates a new `Validator` instance with the specified tokens and output file.
     pub fn new(tokens: Vec<String>, output_file: String) -> Validator { Validator { tokens, output_file } }
@@ -46,6 +48,7 @@ impl Validator {
     /// - If the sequence of tokens does not contain the 'HALT' instruction.
     /// - If any instruction in the sequence is not a valid predefined token.
     /// - If the number of parameters for any instruction does not match the expected number.
+    /// - If the parameter is not in hexadecimal base.
     /// - If there are issues while writing the validated tokens to the output file.
     pub fn validate(&self) -> Result<(), Error> {
         let valid_tokens: HashMap<&str, usize> = HashMap::from([
@@ -62,12 +65,12 @@ impl Validator {
             ("STA", 1),
             ("JMP", 1),
             ("JMPI", 1),
-            ("HALT", 0)
+            ("HALT", 0),
+            ("@", 0)    // TODO
         ]);
 
         if !self.tokens.contains(&"HALT".to_string()) {
-            let msg: String = format!("Missing 'HALT' instruction");
-            return Err(Error::new(ErrorKind::Other, msg));
+            return Err(Error::new(ErrorKind::Other, "Missing 'HALT' instruction"));
         }
 
         for token in &self.tokens {
@@ -78,7 +81,8 @@ impl Validator {
                 return Err(Error::new(ErrorKind::Other, msg));
             }
 
-            let num_params: usize = self.get_num_params(&instruction);
+            let params: Vec<&str> = instruction[1..].to_vec();
+            let num_params: usize = params.len();
 
             if &num_params != valid_tokens.get(instruction[0]).unwrap() {
                 let msg: String = format!(
@@ -89,6 +93,11 @@ impl Validator {
                     token
                 );
 
+                return Err(Error::new(ErrorKind::Other, msg));
+            }
+
+            if num_params > 0 && !self.valid_params(&params) {
+                let msg: String = format!("Invalid parameters in '{token}', the parameters must be in hexadecimal base");
                 return Err(Error::new(ErrorKind::Other, msg));
             }
         }

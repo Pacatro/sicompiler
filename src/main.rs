@@ -17,6 +17,9 @@ fn main() {
     let input_file: String = args[1].clone();
     let output_file: String = args[2].clone();
 
+    // let input_file: String = "examples/input.txt".to_string();
+    // let output_file: String = "examples/out.txt".to_string();
+
     let now: Instant = Instant::now();
 
     let tokenizer: Tokenizer = Tokenizer::new(input_file);

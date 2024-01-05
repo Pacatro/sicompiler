@@ -27,6 +27,19 @@ The comments in one line will be specified by a semicolon `;`:
 CRA 23 ;One line comment
 ```
 
+### Structure
+
+A program is divided into three clearly differentiated sections, each of them separated by the `@` character.
+
+```bash
+<variables declaration>
+@
+<start dir>
+@
+<sentences>
+@
+```
+
 ### Valid instructions
 
 - CRA
@@ -44,7 +57,10 @@ CRA 23 ;One line comment
 - JMPI dir
 - HALT
 
-## Errors cases
+## Errors cases :warning:
 
-- Invalid instruction
-- Invalid number of parameters
+- If the sequence of tokens does not contain the 'HALT' instruction.
+- If any instruction in the sequence is not a valid predefined token.
+- If the number of parameters for any instruction does not match the expected number.
+- If the parameter is not in hexadecimal base.
+- If there are issues while writing the validated tokens to the output file.
