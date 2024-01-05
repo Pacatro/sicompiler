@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use std::io::{Write, Error};
 use std::fs::{File, OpenOptions};
+use std::io::{Write, Error, ErrorKind};
 
 /// The `Validator` struct is responsible for validating a sequence of tokens
 /// representing a custom assembly language. It ensures that each instruction
@@ -11,7 +11,7 @@ pub struct Validator {
 }
 
 impl Validator {
-    fn write_file(&self) -> Result<File, Error> {
+    fn write_file(&self) -> Result<(), Error> {
         let mut file: File = OpenOptions::new()
             .create(true)
             .write(true)
@@ -21,26 +21,33 @@ impl Validator {
             writeln!(file, "{}", token)?;
         }
 
-        Ok(file)
+        Ok(())
     }
 
-    fn get_num_params(&self, instruction: &Vec<&str>) -> usize {
-        let digits: Vec<u32> = instruction
-            .iter()
-            .flat_map(|s| s.chars().filter(|c| c.is_digit(10)))
-            .filter_map(|c| c.to_digit(10))
-            .map(|d| d as u32)
-            .collect();
-
-        digits.len()
-    }
+    fn get_num_params(&self, instruction: &Vec<&str>) -> usize { instruction.len() - 1 }
     
     /// Creates a new `Validator` instance with the specified tokens and output file.
     pub fn new(tokens: Vec<String>, output_file: String) -> Validator { Validator { tokens, output_file } }
 
     /// Validates the sequence of tokens based on predefined rules.
-    /// Returns a `Result` containing the opened file with validated tokens or an error.
-    pub fn validate(&self) -> Result<File, Error> {
+    /// 
+    /// # Arguments
+    /// 
+    /// - `self` - A reference to the `Validator` instance.
+    /// 
+    /// # Returns
+    /// 
+    /// Returns a `Result` with a unit type `()` indicating success or an `Error` if validation fails.
+    /// 
+    /// # Errors
+    /// 
+    /// The function may return an error in the following cases:
+    /// 
+    /// - If the sequence of tokens does not contain the 'HALT' instruction.
+    /// - If any instruction in the sequence is not a valid predefined token.
+    /// - If the number of parameters for any instruction does not match the expected number.
+    /// - If there are issues while writing the validated tokens to the output file.
+    pub fn validate(&self) -> Result<(), Error> {
         let valid_tokens: HashMap<&str, usize> = HashMap::from([
             ("CRA", 0),
             ("CTA", 0),
@@ -58,21 +65,35 @@ impl Validator {
             ("HALT", 0)
         ]);
 
+        if !self.tokens.contains(&"HALT".to_string()) {
+            let msg: String = format!("Missing 'HALT' instruction");
+            return Err(Error::new(ErrorKind::Other, msg));
+        }
+
         for token in &self.tokens {
             let instruction: Vec<&str> = token.split_whitespace().collect();
 
             if !valid_tokens.contains_key(&instruction[0]) {
-                let msg: String = format!("Invalid instruction --> {}", instruction[0]);
-                return Err(Error::new(std::io::ErrorKind::Other, msg));
+                let msg: String = format!("Invalid instruction '{}'", instruction[0]);
+                return Err(Error::new(ErrorKind::Other, msg));
             }
 
-            if &self.get_num_params(&instruction) != valid_tokens.get(instruction[0]).unwrap() {
-                let msg: String = format!("Invalid number of parameters in {}", instruction[0]);
-                return Err(Error::new(std::io::ErrorKind::Other, msg));
+            let num_params: usize = self.get_num_params(&instruction);
+
+            if &num_params != valid_tokens.get(instruction[0]).unwrap() {
+                let msg: String = format!(
+                    "Invalid number of parameters in '{}', only has {} but get {} -> {}", 
+                    instruction[0], 
+                    valid_tokens.get(instruction[0]).unwrap(), 
+                    num_params, 
+                    token
+                );
+
+                return Err(Error::new(ErrorKind::Other, msg));
             }
         }
         
-        let file: File = self.write_file()?;
-        Ok(file)
+        self.write_file()?;
+        Ok(())
     }
 }
