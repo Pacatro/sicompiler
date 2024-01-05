@@ -2,21 +2,12 @@
 
 This is a simple compiler that prepare files for be using in SiCoMe simulator realized by the University of Cordoba (UCO).
 
-## Installation
-
-```bash
-mkdir build
-cd build
-cmake ..
-make
-```
-
 ## How to use
 
 The only thing you need to do is write the next command in the directory you have the executable
 
 ```bash
-./sc.exe input_file_dir output_file_dir
+./sc <input_file_dir> <output_file_dir>
 ```
 
 The result will be an output file with the name you write in the same directory you are.
@@ -52,3 +43,8 @@ CRA 23 ;One line comment
 - JMP dir
 - JMPI dir
 - HALT
+
+## Errors cases
+
+- Invalid instruction
+- Invalid number of parameters

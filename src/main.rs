@@ -3,10 +3,9 @@ mod validator;
 
 use tokenizer::Tokenizer;
 use validator::Validator;
-use std::env;
+use std::{env, time::Instant};
 
 fn main() {
-
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 3 {
@@ -18,8 +17,7 @@ fn main() {
     let input_file: String = args[1].clone();
     let output_file: String = args[2].clone();
 
-    // let input_file: String = "examples/input.txt".to_string();
-    // let output_file: String = "examples/out.txt".to_string();
+    let now: Instant = Instant::now();
 
     let tokenizer: Tokenizer = Tokenizer::new(input_file);
 
@@ -33,7 +31,7 @@ fn main() {
     let validator: Validator = Validator::new(tokens, output_file);
 
     match validator.validate() {
-        Ok(_) => println!("Success"),
+        Ok(_) => println!("Finished in {}s", now.elapsed().as_secs_f32()),
         Err(error) => eprintln!("Error: {error}")
     };
 }
