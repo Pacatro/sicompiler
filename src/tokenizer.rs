@@ -1,12 +1,12 @@
 use std::fs;
 use std::io;
 
+/// The `Tokenizer` struct is responsible for tokenizing input source code,
+/// removing comments and empty lines, and providing a sequence of valid code lines.
 pub struct Tokenizer {
     input: String
 }
 
-/// The `Tokenizer` struct is responsible for tokenizing input source code,
-/// removing comments and empty lines, and providing a sequence of valid code lines.
 impl Tokenizer {
     fn remove_comments(&self, line: &mut String) {
         if line.is_empty() || !line.contains(';') { return }
