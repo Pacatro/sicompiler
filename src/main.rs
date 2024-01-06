@@ -6,17 +6,18 @@ use tokenizer::Tokenizer;
 use validator::Validator;
 use models::program::Program;
 
-use std::{env, time::Instant, io::Error, io::ErrorKind};
+use std::{env, time::Instant};
 
-// TODO: IMPLEMENT CUSTOM ERRORS
-// TODO: CHECK STANDARS FOR THE PROGRAM STRUCT
+// TODO: CHECK STANDARS FOR THE PROGRAM STRUCT (MAYBE THERE ARE SOME CASES THAT WE DID NOT COSIDERATE)
 // TODO: CONTEMPLATE ALL ERROR CASES
 
-fn main() -> Result<(), Error> {
+fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 3 {
-        return Err(Error::new(ErrorKind::Other, "Error: you should pass the input and output files path\nExample: sc <input_file> <output_file>"));
+        eprintln!("Error: you should pass the input and output files path");
+        eprintln!("Usage: ./sc <input_file> <output_file>");
+        return;
     }
 
     let input_file: String = args[1].clone();
@@ -28,12 +29,25 @@ fn main() -> Result<(), Error> {
     let now: Instant = Instant::now();
 
     let tokenizer: Tokenizer = Tokenizer::new(input_file);
-    let tokens: Program = tokenizer.tokenize()?;
+    let tokens: Program;
+
+    match tokenizer.tokenize() {
+        Ok(result) => tokens = result,
+        Err(err) => {
+            eprintln!("Error: {}", err);
+            return;
+        }
+    }
 
     let validator: Validator = Validator::new(tokens, output_file);
-    validator.validate()?;
+    
+    match validator.validate() {
+        Ok(_) => {},
+        Err(err) => {
+            eprintln!("Error: {}", err);
+            return;
+        },
+    }
 
     println!("Finished in {}s", now.elapsed().as_secs_f32());
-
-    Ok(())
 }
