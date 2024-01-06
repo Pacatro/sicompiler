@@ -29,7 +29,9 @@ impl Validator {
     }
     
     /// Creates a new `Validator` instance with the specified tokens and output file.
-    pub fn new(tokens: Vec<String>, output_file: String) -> Validator { Validator { tokens, output_file } }
+    pub fn new(tokens: Vec<String>, output_file: String) -> Validator { 
+        Validator { tokens, output_file }
+    }
 
     /// Validates the sequence of tokens based on predefined rules.
     /// 
@@ -65,8 +67,7 @@ impl Validator {
             ("STA", 1),
             ("JMP", 1),
             ("JMPI", 1),
-            ("HALT", 0),
-            ("@", 0)    // TODO
+            ("HALT", 0)
         ]);
 
         if !self.tokens.contains(&"HALT".to_string()) {
