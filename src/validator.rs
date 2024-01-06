@@ -43,17 +43,16 @@ impl Validator {
 
         Ok(())
     }
-    
-    /// Creates a new `Validator` instance with the specified tokens and output file.
-    pub fn new(tokens: Program, output_file: String) -> Validator { 
-        Validator { tokens, output_file }
-    }
 
-    pub fn validate(&self) -> Result<(), Error> {
+    fn validate_program(&self) -> Result<(), Error> {
         if self.tokens.variables().is_empty() || self.tokens.instructions().is_empty() {
             return Err(Error::new(ErrorKind::Other, "Empty program"));
         }
 
+        Ok(())
+    }
+
+    fn validate_variables(&self) -> Result<(), Error> {
         for variable in self.tokens.variables() {
             let var: Vec<String> = vec![variable.dir().to_string(), variable.name().to_string()];
             if !Validator::is_hex(&var) {
@@ -62,11 +61,19 @@ impl Validator {
             } 
         }
 
+        Ok(())
+    }
+
+    fn validate_init(&self) -> Result<(), Error> {
         if !Validator::is_hex(&vec![self.tokens.init().dir.clone()]) {
             let msg: String = format!("The init dir must be in hex base '{}'", self.tokens.init().dir);
             return Err(Error::new(ErrorKind::Other, msg));
         }
 
+        Ok(())
+    }
+
+    fn validate_instructions(&self) -> Result<(), Error> {
         let valid_instructions: HashMap<&str, Instruction> = HashMap::from([
             ("CRA", Instruction::new("CRA", vec![])),
             ("CTA", Instruction::new("CTA", vec![])),
@@ -122,8 +129,22 @@ impl Validator {
                 return Err(Error::new(ErrorKind::Other, msg));
             }
         }
-        
+
+        Ok(())
+    }
+    
+    /// Creates a new `Validator` instance with the specified tokens and output file.
+    pub fn new(tokens: Program, output_file: String) -> Validator { 
+        Validator { tokens, output_file }
+    }
+
+    pub fn validate(&self) -> Result<(), Error> {
+        self.validate_program()?;
+        self.validate_variables()?;
+        self.validate_init()?;
+        self.validate_instructions()?;
         self.write_file()?;
+        
         Ok(())
     }
 }
