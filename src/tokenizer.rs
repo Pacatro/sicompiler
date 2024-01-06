@@ -70,17 +70,6 @@ impl Tokenizer {
         Tokenizer { input }
     }
     
-    /// Tokenizes the content of the input file, removing comments and empty lines.
-    /// 
-    /// # Returns
-    /// 
-    /// Returns a `Result` containing a vector of strings representing the tokens from the input file.
-    /// If successful, the vector contains the non-empty lines after removing comments.
-    /// If the input file is empty, an empty vector is returned.
-    /// 
-    /// # Errors
-    /// 
-    /// The function may return an error if there are issues reading the input file.
     pub fn tokenize(&self) -> Result<(Vec<Variable>, Init, Vec<Instruction>), Error> {
         let mut content: String = fs::read_to_string(&self.input)?;
         
@@ -108,7 +97,6 @@ impl Tokenizer {
             instructions = self.tokenize_instructions(instruction_section);
         }
 
-        let tokens: (Vec<Variable>, Init, Vec<Instruction>) = (variables, init, instructions);
-        Ok(tokens)
+        Ok((variables, init, instructions))
     }
 }
