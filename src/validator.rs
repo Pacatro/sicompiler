@@ -25,7 +25,13 @@ impl Validator {
     }
 
     fn valid_params(&self, params: &Vec<&str>) -> bool {
-        params.iter().next().unwrap().chars().next().unwrap().is_ascii_hexdigit()
+        params.iter()
+            .next()
+            .unwrap()
+            .chars()
+            .next()
+            .unwrap()
+            .is_ascii_hexdigit()
     }
     
     /// Creates a new `Validator` instance with the specified tokens and output file.

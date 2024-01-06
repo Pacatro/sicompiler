@@ -5,12 +5,12 @@ pub struct Instruction {
 }
 
 impl Instruction {
-    pub fn new(mnemonic: String, params: Vec<String>) -> Instruction {
+    pub fn new(mnemonic: &str, params: Vec<&str>) -> Instruction {
         if params.len() == 0 {
-            return Instruction { mnemonic, flag: false, params: vec![] };
+            return Instruction { mnemonic: String::from(mnemonic), flag: false, params: vec![] };
         }
         
-        Instruction { mnemonic, flag: true, params }
+        Instruction { mnemonic: String::from(mnemonic), flag: true, params: params.iter().map(|s| String::from(*s)).collect() }
     }
 
     pub fn mnemonic(&self) -> &str { &self.mnemonic }

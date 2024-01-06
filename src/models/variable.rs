@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct Variable {
     dir: String,
     name: String,

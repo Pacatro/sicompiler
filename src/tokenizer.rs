@@ -10,7 +10,7 @@ pub struct Tokenizer {
 }
 
 impl Tokenizer {
-    fn remove_comments(&self, content: &String) -> String {
+    fn remove_comments(content: &str) -> String {
         let mut result = String::new();
 
         for line in content.lines() {
@@ -29,23 +29,22 @@ impl Tokenizer {
         result
     }
 
-    fn tokenize_instructions(&self, section: &str) -> Vec<Instruction> {
+    fn tokenize_instructions(section: &str) -> Vec<Instruction> {
         let mut instructions: Vec<Instruction> = Vec::new();
         
         for token in section.lines() {
             if token.is_empty() { continue }
             
-            let parts: Vec<String> = token.split_whitespace()
-                .map(|s| s.to_string())
-                .collect();
-            instructions.push(Instruction::new(parts[0].to_string(), parts[1..].to_vec()));
+            let parts: Vec<&str> = token.split_whitespace().collect();
+
+            instructions.push(Instruction::new(parts[0], parts[1..].to_vec()));
         }
 
         instructions
 
     }
 
-    fn tokenize_variables(&self, section: &str) -> Vec<Variable> {
+    fn tokenize_variables(section: &str) -> Vec<Variable> {
         let mut variables: Vec<Variable> = Vec::new();
         
         for token in section.lines() {
@@ -56,7 +55,7 @@ impl Tokenizer {
         variables
     }
 
-    fn tokenize_init(&self, section: &str) -> Init {
+    fn tokenize_init(section: &str) -> Init {
         let dir: String = section.split_whitespace().collect::<Vec<&str>>()[0].to_string();
         Init { dir }
     }
@@ -77,7 +76,7 @@ impl Tokenizer {
             return Err(Error::new(ErrorKind::Other, "The file is empty"));
         }
 
-        content = self.remove_comments(&content);
+        content = Tokenizer::remove_comments(&content);
 
         let sections: Vec<&str> = content.split('@').collect();
         
@@ -86,15 +85,15 @@ impl Tokenizer {
         let mut init: Init = Init { dir: "".to_string() };
 
         if let Some(variable_section) = sections.get(0) {
-            variables = self.tokenize_variables(variable_section);
+            variables = Tokenizer::tokenize_variables(variable_section);
         }
 
         if let Some(init_section) = sections.get(1) {
-            init = self.tokenize_init(init_section);
+            init = Tokenizer::tokenize_init(init_section);
         }
 
         if let Some(instruction_section) = sections.get(2) {
-            instructions = self.tokenize_instructions(instruction_section);
+            instructions = Tokenizer::tokenize_instructions(instruction_section);
         }
 
         Ok((variables, init, instructions))
