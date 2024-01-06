@@ -2,29 +2,18 @@ use std::collections::HashMap;
 use std::fs::{File, OpenOptions};
 use std::io::{Write, Error, ErrorKind};
 
+use crate::models::{program::Program, instruction::Instruction};
+
 /// The `Validator` struct is responsible for validating a sequence of tokens
 /// representing a custom assembly language. It ensures that each instruction
 /// is valid and adheres to the expected format, raising errors if any issues are detected.
 pub struct Validator {
     output_file: String,
-    tokens: Vec<String>
+    tokens: Program
 }
 
 impl Validator {
-    fn write_file(&self) -> Result<(), Error> {
-        let mut file: File = OpenOptions::new()
-            .create(true)
-            .write(true)
-            .open(&self.output_file)?;
-
-        for token in &self.tokens {
-            writeln!(file, "{}", token)?;
-        }
-
-        Ok(())
-    }
-
-    fn valid_params(&self, params: &Vec<&str>) -> bool {
+    fn is_hex(params: &Vec<String>) -> bool {
         params.iter()
             .next()
             .unwrap()
@@ -33,78 +22,103 @@ impl Validator {
             .unwrap()
             .is_ascii_hexdigit()
     }
+
+    fn write_file(&self) -> Result<(), Error> {
+        let mut file: File = OpenOptions::new()
+            .create(true)
+            .write(true)
+            .open(&self.output_file)?;
+
+        for variable in self.tokens.variables() {
+            file.write_all(format!("{} {}\n", variable.dir(), variable.name()).as_bytes())?;
+        }
+
+        writeln!(file, "@")?;
+        writeln!(file, "{}", self.tokens.init().dir.clone())?;
+        writeln!(file, "@")?;
+
+        for instruction in self.tokens.instructions() {
+            file.write_all(format!("{} {}\n", instruction.mnemonic(), instruction.clone().params().join(" ")).as_bytes())?;
+        }
+
+        Ok(())
+    }
     
     /// Creates a new `Validator` instance with the specified tokens and output file.
-    pub fn new(tokens: Vec<String>, output_file: String) -> Validator { 
+    pub fn new(tokens: Program, output_file: String) -> Validator { 
         Validator { tokens, output_file }
     }
 
-    /// Validates the sequence of tokens based on predefined rules.
-    /// 
-    /// # Arguments
-    /// 
-    /// - `self` - A reference to the `Validator` instance.
-    /// 
-    /// # Returns
-    /// 
-    /// Returns a `Result` with a unit type `()` indicating success or an `Error` if validation fails.
-    /// 
-    /// # Errors
-    /// 
-    /// The function may return an error in the following cases:
-    /// 
-    /// - If the sequence of tokens does not contain the 'HALT' instruction.
-    /// - If any instruction in the sequence is not a valid predefined token.
-    /// - If the number of parameters for any instruction does not match the expected number.
-    /// - If the parameter is not in hexadecimal base.
-    /// - If there are issues while writing the validated tokens to the output file.
     pub fn validate(&self) -> Result<(), Error> {
-        let valid_tokens: HashMap<&str, usize> = HashMap::from([
-            ("CRA", 0),
-            ("CTA", 0),
-            ("ITA", 0),
-            ("CRF", 0),
-            ("CTF", 0),
-            ("SFZ", 0),
-            ("ROR_F_ACC", 0),
-            ("ROL_F_ACC", 0),
-            ("ADD", 1),
-            ("ADDI", 1),
-            ("STA", 1),
-            ("JMP", 1),
-            ("JMPI", 1),
-            ("HALT", 0)
+        if self.tokens.variables().is_empty() || self.tokens.instructions().is_empty() {
+            return Err(Error::new(ErrorKind::Other, "Empty program"));
+        }
+
+        for variable in self.tokens.variables() {
+            let var: Vec<String> = vec![variable.dir().to_string(), variable.name().to_string()];
+            if !Validator::is_hex(&var) {
+                let msg: String = format!("The varibale dir and name must be in hex base '{} {}'", variable.dir(), variable.name());
+                return Err(Error::new(ErrorKind::Other, msg));
+            } 
+        }
+
+        if !Validator::is_hex(&vec![self.tokens.init().dir.clone()]) {
+            let msg: String = format!("The init dir must be in hex base '{}'", self.tokens.init().dir);
+            return Err(Error::new(ErrorKind::Other, msg));
+        }
+
+        let valid_instructions: HashMap<&str, Instruction> = HashMap::from([
+            ("CRA", Instruction::new("CRA", vec![])),
+            ("CTA", Instruction::new("CTA", vec![])),
+            ("ITA", Instruction::new("ITA", vec![])),
+            ("CRF", Instruction::new("CRF", vec![])),
+            ("CTF", Instruction::new("CTF", vec![])),
+            ("SFZ", Instruction::new("SFZ", vec![])),
+            ("ROR_F_ACC", Instruction::new("ROR_F_ACC", vec![])),
+            ("ROL_F_ACC", Instruction::new("ROL_F_ACC", vec![])),
+            ("ADD", Instruction::new("ADD", vec!["0x1234"])),
+            ("ADDI", Instruction::new("ADDI", vec!["0x1234"])),
+            ("STA", Instruction::new("STA", vec!["0x1234"])),
+            ("JMP", Instruction::new("JMP", vec!["0x1234"])),
+            ("JMPI", Instruction::new("JMPI", vec!["0x1234"])),
+            ("HALT", Instruction::new("HALT", vec![]))
         ]);
 
-        if !self.tokens.contains(&"HALT".to_string()) {
+        if !self.tokens.instructions().contains(valid_instructions.get("HALT").unwrap()) {
             return Err(Error::new(ErrorKind::Other, "Missing 'HALT' instruction"));
         }
 
-        for token in &self.tokens {
-            let instruction: Vec<&str> = token.split_whitespace().collect();
-
-            if !valid_tokens.contains_key(&instruction[0]) {
-                let msg: String = format!("Invalid instruction '{}'", instruction[0]);
+        for instruction in self.tokens.instructions() {
+            if !valid_instructions.contains_key(instruction.mnemonic()) {
+                let msg: String = format!("Invalid instruction '{}'", instruction.mnemonic());
                 return Err(Error::new(ErrorKind::Other, msg));
             }
+            
+            let params: Vec<String> = instruction.clone().params();
+            let num_params: usize = instruction.clone().params().len();
 
-            let params: Vec<&str> = instruction[1..].to_vec();
-            let num_params: usize = params.len();
-
-            if &num_params != valid_tokens.get(instruction[0]).unwrap() {
+            if instruction.clone().flag() != valid_instructions.get(instruction.mnemonic()).unwrap().clone().flag() {
                 let msg: String = format!(
-                    "Invalid number of parameters in '{}', only has {} but get {} -> {}", 
-                    instruction[0], 
-                    valid_tokens.get(instruction[0]).unwrap(), 
-                    num_params, 
-                    token
+                    "The instruction '{}' must have at least one parameter", 
+                    instruction.mnemonic(), 
                 );
 
                 return Err(Error::new(ErrorKind::Other, msg));
             }
 
-            if num_params > 0 && !self.valid_params(&params) {
-                let msg: String = format!("Invalid parameters in '{token}', the parameters must be in hexadecimal base");
+            if num_params != valid_instructions.get(instruction.mnemonic()).unwrap().clone().params().len() {
+                let msg: String = format!(
+                    "Invalid number of parameters in '{}', only has {} but get {}", 
+                    instruction.mnemonic(), 
+                    valid_instructions.get(instruction.mnemonic()).unwrap().clone().params().len(), 
+                    num_params
+                );
+
+                return Err(Error::new(ErrorKind::Other, msg));
+            }
+        
+            if num_params > 0 && !Validator::is_hex(&params) {
+                let msg: String = format!("Invalid parameters in '{}', the parameters must be in hex base", instruction.mnemonic());
                 return Err(Error::new(ErrorKind::Other, msg));
             }
         }

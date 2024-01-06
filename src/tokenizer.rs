@@ -1,7 +1,7 @@
 use std::fs;
 use std::io::{Error, ErrorKind};
 
-use crate::models::{instruction::Instruction, variable::Variable, init::Init};
+use crate::models::{instruction::Instruction, variable::Variable, init::Init, program::Program};
 
 /// The `Tokenizer` struct is responsible for tokenizing input source code,
 /// removing comments and empty lines, and providing a sequence of valid code lines.
@@ -41,13 +41,13 @@ impl Tokenizer {
         }
 
         instructions
-
     }
 
     fn tokenize_variables(section: &str) -> Vec<Variable> {
         let mut variables: Vec<Variable> = Vec::new();
         
         for token in section.lines() {
+            if token.is_empty() { continue }
             let parts: Vec<&str> = token.split_whitespace().collect();
             variables.push(Variable::new(parts[0], parts[1]));
         }
@@ -56,6 +56,7 @@ impl Tokenizer {
     }
 
     fn tokenize_init(section: &str) -> Init {
+        if section.is_empty() { return Init { dir: String::from("")}}
         let dir: String = section.split_whitespace().collect::<Vec<&str>>()[0].to_string();
         Init { dir }
     }
@@ -69,7 +70,7 @@ impl Tokenizer {
         Tokenizer { input }
     }
     
-    pub fn tokenize(&self) -> Result<(Vec<Variable>, Init, Vec<Instruction>), Error> {
+    pub fn tokenize(&self) -> Result<Program, Error> {
         let mut content: String = fs::read_to_string(&self.input)?;
         
         if content.is_empty() { 
@@ -79,23 +80,30 @@ impl Tokenizer {
         content = Tokenizer::remove_comments(&content);
 
         let sections: Vec<&str> = content.split('@').collect();
+
+        if sections.len() != 3 {
+            return Err(Error::new(ErrorKind::Other, "Invalid number of sections"));
+        }
         
         let mut variables: Vec<Variable> = Vec::new();
-        let mut instructions: Vec<Instruction> = Vec::new();
-        let mut init: Init = Init { dir: "".to_string() };
-
         if let Some(variable_section) = sections.get(0) {
             variables = Tokenizer::tokenize_variables(variable_section);
         }
-
+        
+        let mut init: Init = Init { dir: "".to_string() };
         if let Some(init_section) = sections.get(1) {
             init = Tokenizer::tokenize_init(init_section);
         }
 
+        if init.dir.is_empty() {
+            return Err(Error::new(ErrorKind::Other, "No init section found"));
+        }
+        
+        let mut instructions: Vec<Instruction> = Vec::new();
         if let Some(instruction_section) = sections.get(2) {
             instructions = Tokenizer::tokenize_instructions(instruction_section);
         }
 
-        Ok((variables, init, instructions))
+        Ok(Program::new(variables, init, instructions))
     }
 }
