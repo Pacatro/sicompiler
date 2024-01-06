@@ -14,13 +14,13 @@ pub struct Validator {
 
 impl Validator {
     fn is_hex(params: &Vec<String>) -> bool {
-        params.iter()
-            .next()
-            .unwrap()
-            .chars()
-            .next()
-            .unwrap()
-            .is_ascii_hexdigit()
+        for param in params {
+            if !param.chars().next().unwrap().is_ascii_hexdigit() {
+                return false;
+            }
+        }
+
+        true
     }
 
     fn write_file(&self) -> Result<(), Error> {
@@ -106,8 +106,9 @@ impl Validator {
 
             if instruction.clone().flag() != valid_instructions.get(instruction.mnemonic()).unwrap().clone().flag() {
                 let msg: String = format!(
-                    "The instruction '{}' must have at least one parameter", 
-                    instruction.mnemonic(), 
+                    "The instruction '{}' has a wrong number of parameters, must have {}", 
+                    instruction.mnemonic(),
+                    valid_instructions.get(instruction.mnemonic()).unwrap().clone().params().len()
                 );
 
                 return Err(Error::new(ErrorKind::Other, msg));

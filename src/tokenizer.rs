@@ -56,8 +56,18 @@ impl Tokenizer {
     }
 
     fn tokenize_init(section: &str) -> Init {
-        if section.is_empty() { return Init { dir: String::from("")}}
-        let dir: String = section.split_whitespace().collect::<Vec<&str>>()[0].to_string();
+        if section.is_empty() { 
+            return Init { dir: String::from("")}
+        
+        }
+
+        let valid_section: Vec<&str> = section.split_whitespace().collect();
+
+        if valid_section.is_empty() { 
+            return Init { dir: String::from("")}
+        }
+
+        let dir: String = valid_section[0].to_string();
         Init { dir }
     }
     
