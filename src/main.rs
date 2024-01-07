@@ -12,6 +12,7 @@ use clap::Parser;
 use std::{time::Instant, collections::HashMap};
 
 // TODO: Restructure project
+// TODO: Check how to know what number of arguments recive the instruction
 fn main() {
     let args: Cli = Cli::parse();
     
