@@ -10,6 +10,9 @@ pub struct Tokenizer {
 }
 
 impl Tokenizer {
+    /// Removes comments from each line of the input content.
+    /// ## Returns 
+    /// A string with comments removed.
     fn remove_comments(content: &str) -> String {
         let mut result = String::new();
 
@@ -29,6 +32,13 @@ impl Tokenizer {
         result
     }
 
+    /// Tokenizes instruction 
+    /// 
+    /// ## Arguments
+    /// - `section` - The instruction section of the file
+    /// 
+    /// ## Returns 
+    /// A vector of `Instruction` instances.
     fn tokenize_instructions(section: &str) -> Vec<Instruction> {
         let mut instructions: Vec<Instruction> = Vec::new();
         
@@ -43,6 +53,13 @@ impl Tokenizer {
         instructions
     }
 
+    /// Tokenizes varibles 
+    /// 
+    /// ## Arguments
+    /// - `section` - The varibles section of the file
+    /// 
+    /// ## Returns 
+    /// A vector of `Varibles` instances.
     fn tokenize_variables(section: &str) -> Vec<Variable> {
         let mut variables: Vec<Variable> = Vec::new();
         
@@ -55,6 +72,13 @@ impl Tokenizer {
         variables
     }
 
+    /// Tokenizes init section 
+    /// 
+    /// ## Arguments
+    /// - `section` - The init section of the file
+    /// 
+    /// ## Returns 
+    /// A `Init` instances.
     fn tokenize_init(section: &str) -> Init {
         if section.is_empty() { 
             return Init { dir: String::from("")}
@@ -73,13 +97,31 @@ impl Tokenizer {
     
     /// Creates a new `Tokenizer` instance with the specified input file name.
     ///
-    /// # Arguments
+    /// ## Arguments
     ///
     /// - `input` - The name of the input file to be tokenized.
     pub fn new(input: String) -> Tokenizer { 
         Tokenizer { input }
     }
     
+    /// Tokenizes the content of the input file and returns a `Result` containing a `Program` or an `Error`.
+    /// 
+    /// ## Arguments
+    /// 
+    /// - `&self` - Reference to the `Tokenizer` instance.
+    /// 
+    /// ## Returns
+    /// 
+    /// - `Result<Program, Error>` - Result containing a `Program` instance if successful, or an `Error` if any issues occur.
+    /// 
+    /// ## Errors
+    /// 
+    /// Returns an `Error` if:
+    /// 
+    /// - The file is empty.
+    /// - The number of sections in the file is not equal to 3.
+    /// - No init dir is found.
+    /// 
     pub fn tokenize(&self) -> Result<Program, Error> {
         let mut content: String = fs::read_to_string(&self.input)?;
         
@@ -106,7 +148,7 @@ impl Tokenizer {
         }
 
         if init.dir.is_empty() {
-            return Err(Error::new(ErrorKind::Other, "No init section found"));
+            return Err(Error::new(ErrorKind::Other, "No init dir found"));
         }
         
         let mut instructions: Vec<Instruction> = Vec::new();

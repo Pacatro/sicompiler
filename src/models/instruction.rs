@@ -1,3 +1,4 @@
+/// Represents an instruction in a program.
 #[derive(Debug, PartialEq, Clone)]
 pub struct Instruction {
     mnemonic: String,
@@ -6,6 +7,16 @@ pub struct Instruction {
 }
 
 impl Instruction {
+    /// Creates a new `Instruction` with the specified mnemonic and parameters.
+    ///
+    /// ## Arguments
+    ///
+    /// - `mnemonic` - The mnemonic of the instruction.
+    /// - `params` - A vector of string parameters associated with the instruction.
+    ///
+    /// ## Returns
+    ///
+    /// A new `Instruction` instance.
     pub fn new(mnemonic: &str, params: Vec<&str>) -> Instruction {
         if params.len() == 0 {
             return Instruction { mnemonic: String::from(mnemonic), flag: false, params: vec![] };

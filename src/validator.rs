@@ -13,6 +13,24 @@ pub struct Validator {
 }
 
 impl Validator {
+    /// Checks if all strings in the given vector represent valid hexadecimal values.
+    /// 
+    /// ## Arguments
+    /// 
+    /// - `params` - A reference to a vector of strings to be checked.
+    /// 
+    /// ## Returns
+    /// 
+    /// - `bool` - Returns `true` if all strings in the vector are valid hexadecimal values, otherwise `false`.
+    /// 
+    /// ## Example
+    /// 
+    /// ```
+    /// let params = vec!["1a", "2F", "4D"];
+    /// let result = is_hex(&params);
+    /// assert_eq!(result, true);
+    /// ```
+    /// 
     fn is_hex(params: &Vec<String>) -> bool {
         for param in params {
             if !param.chars().next().unwrap().is_ascii_hexdigit() {
@@ -23,6 +41,16 @@ impl Validator {
         true
     }
 
+    /// Writes the tokenized information to an output file.
+    /// 
+    /// ## Arguments
+    /// 
+    /// - `&self` - Reference to the `Tokenizer` instance.
+    /// 
+    /// ## Returns
+    /// 
+    /// - `Result<(), Error>` - Result indicating success or an `Error` if any issues occur during file writing.
+    ///     
     fn write_file(&self) -> Result<(), Error> {
         let mut file: File = OpenOptions::new()
             .create(true)
@@ -44,14 +72,34 @@ impl Validator {
         Ok(())
     }
 
+    /// Validates the tokenized program to ensure it contains both instructions and variables sections.
+    /// 
+    /// ## Arguments
+    /// 
+    /// - `&self` - Reference to the `Tokenizer` instance.
+    /// 
+    /// ## Returns
+    /// 
+    /// - `Result<(), Error>` - Result indicating success or an `Error` if there is no instructions or variables section.
+    /// 
     fn validate_program(&self) -> Result<(), Error> {
         if self.tokens.variables().is_empty() || self.tokens.instructions().is_empty() {
-            return Err(Error::new(ErrorKind::Other, "Empty program"));
+            return Err(Error::new(ErrorKind::Other, "There is not any instructions or variables section"));
         }
 
         Ok(())
     }
 
+    /// Validates the tokenized variables to ensure both directory and name are in hexadecimal format.
+    /// 
+    /// ## Arguments
+    /// 
+    /// - `&self` - Reference to the `Tokenizer` instance.
+    /// 
+    /// ## Returns
+    /// 
+    /// - `Result<(), Error>` - Result indicating success or an `Error` if any variable has a non-hexadecimal directory or name.
+    /// 
     fn validate_variables(&self) -> Result<(), Error> {
         for variable in self.tokens.variables() {
             let var: Vec<String> = vec![variable.dir().to_string(), variable.name().to_string()];
@@ -64,6 +112,16 @@ impl Validator {
         Ok(())
     }
 
+    /// Validates the tokenized initialization directory to ensure it is in hexadecimal format.
+    /// 
+    /// ## Arguments
+    /// 
+    /// - `&self` - Reference to the `Tokenizer` instance.
+    /// 
+    /// ## Returns
+    /// 
+    /// - `Result<(), Error>` - Result indicating success or an `Error` if the initialization directory is not in hexadecimal format.
+    /// 
     fn validate_init(&self) -> Result<(), Error> {
         if !Validator::is_hex(&vec![self.tokens.init().dir.clone()]) {
             let msg: String = format!("The init dir must be in hex base '{}'", self.tokens.init().dir);
@@ -73,6 +131,16 @@ impl Validator {
         Ok(())
     }
 
+    /// Validates the tokenized instructions to ensure they are valid and have the correct parameters.
+    /// 
+    /// ## Arguments
+    /// 
+    /// - `&self` - Reference to the `Tokenizer` instance.
+    /// 
+    /// ## Returns
+    /// 
+    /// - `Result<(), Error>` - Result indicating success or an `Error` if any instruction is invalid or has incorrect parameters.
+    /// 
     fn validate_instructions(&self) -> Result<(), Error> {
         let valid_instructions: HashMap<&str, Instruction> = HashMap::from([
             ("CRA", Instruction::new("CRA", vec![])),
@@ -139,6 +207,17 @@ impl Validator {
         Validator { tokens, output_file }
     }
 
+    /// Validates the tokenized program, variables, initialization directory, and instructions,
+    /// and writes the validated information to an output file.
+    /// 
+    /// ## Arguments
+    /// 
+    /// - `&self` - Reference to the `Tokenizer` instance.
+    /// 
+    /// ## Returns
+    /// 
+    /// - `Result<(), Error>` - Result indicating success or an `Error` if any validation step fails.
+    /// 
     pub fn validate(&self) -> Result<(), Error> {
         self.validate_program()?;
         self.validate_variables()?;
