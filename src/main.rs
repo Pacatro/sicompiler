@@ -8,9 +8,7 @@ use models::program::Program;
 
 use std::{env, time::Instant};
 
-// TODO: CHECK STANDARS FOR THE PROGRAM STRUCT (MAYBE THERE ARE SOME CASES THAT WE DID NOT COSIDERATE)
-// TODO: CONTEMPLATE ALL ERROR CASES
-
+// TODO: Implemets instruction repertoires (./sc <input_file> <output_file> -r <repertory.txt>)
 fn main() {
     let args: Vec<String> = env::args().collect();
 

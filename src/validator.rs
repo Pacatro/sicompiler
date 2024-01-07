@@ -156,6 +156,7 @@ impl Validator {
             ("STA", Instruction::new("STA", vec!["0x1234"])),
             ("JMP", Instruction::new("JMP", vec!["0x1234"])),
             ("JMPI", Instruction::new("JMPI", vec!["0x1234"])),
+            ("ISZ", Instruction::new("ISZ", vec!["0x1234"])),
             ("HALT", Instruction::new("HALT", vec![]))
         ]);
 
