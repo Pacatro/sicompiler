@@ -9,6 +9,8 @@ use models::program::Program;
 use std::{env, time::Instant};
 
 // TODO: Implemets instruction repertoires (./sc <input_file> <output_file> -r <repertory.txt>)
+// TODO: Implements multilines comments
+// TODO: Restructure project
 fn main() {
     let args: Vec<String> = env::args().collect();
 
