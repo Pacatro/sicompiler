@@ -1,34 +1,40 @@
 mod tokenizer;
 mod validator;
 mod models;
+mod args;
 
+use args::Cli;
 use tokenizer::Tokenizer;
 use validator::Validator;
-use models::program::Program;
+use models::{program::Program, instruction::Instruction};
 
-use std::{env, time::Instant};
+use clap::Parser;
+use std::{time::Instant, collections::HashMap};
 
-// TODO: Implemets instruction repertoires (./sc <input_file> <output_file> -r <repertory.txt>)
-// TODO: Implements multilines comments
 // TODO: Restructure project
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    let args: Cli = Cli::parse();
+    
+    let now: Instant = Instant::now();
+    
+    let repertorie_path: String;
+    
+    match args.repertorie_path {
+        Some(path) => repertorie_path = path,
+        None => repertorie_path = String::from("src/config/default-repertorie.txt"),
+    }
+    
+    let tokenizer: Tokenizer = Tokenizer::new(args.input_path);
+    let repertories: HashMap<String, Instruction>;
 
-    if args.len() < 3 {
-        eprintln!("Error: you should pass the input and output files path");
-        eprintln!("Usage: ./sc <input_file> <output_file>");
-        return;
+    match Tokenizer::tokenize_repertoire(&repertorie_path) {
+        Ok(result) => repertories = result,
+        Err(err) => {
+            println!("Error: {}", err);
+            return;
+        } 
     }
 
-    let input_file: String = args[1].clone();
-    let output_file: String = args[2].clone();
-
-    // let input_file: String = "examples/input.txt".to_string();
-    // let output_file: String = "examples/out.txt".to_string();
-
-    let now: Instant = Instant::now();
-
-    let tokenizer: Tokenizer = Tokenizer::new(input_file);
     let tokens: Program;
 
     match tokenizer.tokenize() {
@@ -39,9 +45,9 @@ fn main() {
         }
     }
 
-    let validator: Validator = Validator::new(tokens, output_file);
+    let validator: Validator = Validator::new(tokens, args.output_path);
     
-    match validator.validate() {
+    match validator.validate(&repertories) {
         Ok(_) => {},
         Err(err) => {
             eprintln!("Error: {}", err);

@@ -141,53 +141,35 @@ impl Validator {
     /// 
     /// - `Result<(), Error>` - Result indicating success or an `Error` if any instruction is invalid or has incorrect parameters.
     /// 
-    fn validate_instructions(&self) -> Result<(), Error> {
-        let valid_instructions: HashMap<&str, Instruction> = HashMap::from([
-            ("CRA", Instruction::new("CRA", vec![])),
-            ("CTA", Instruction::new("CTA", vec![])),
-            ("ITA", Instruction::new("ITA", vec![])),
-            ("CRF", Instruction::new("CRF", vec![])),
-            ("CTF", Instruction::new("CTF", vec![])),
-            ("SFZ", Instruction::new("SFZ", vec![])),
-            ("ROR_F_ACC", Instruction::new("ROR_F_ACC", vec![])),
-            ("ROL_F_ACC", Instruction::new("ROL_F_ACC", vec![])),
-            ("ADD", Instruction::new("ADD", vec!["0x1234"])),
-            ("ADDI", Instruction::new("ADDI", vec!["0x1234"])),
-            ("STA", Instruction::new("STA", vec!["0x1234"])),
-            ("JMP", Instruction::new("JMP", vec!["0x1234"])),
-            ("JMPI", Instruction::new("JMPI", vec!["0x1234"])),
-            ("ISZ", Instruction::new("ISZ", vec!["0x1234"])),
-            ("HALT", Instruction::new("HALT", vec![]))
-        ]);
-
-        if !self.tokens.instructions().contains(valid_instructions.get("HALT").unwrap()) {
+    fn validate_instructions(&self, repertoire: &HashMap<String, Instruction>) -> Result<(), Error> {
+        if !self.tokens.instructions().contains(repertoire.get("HALT").unwrap()) {
             return Err(Error::new(ErrorKind::Other, "Missing 'HALT' instruction"));
         }
 
         for instruction in self.tokens.instructions() {
-            if !valid_instructions.contains_key(instruction.mnemonic()) {
-                let msg: String = format!("Invalid instruction '{}'", instruction.mnemonic());
+            if !repertoire.contains_key(instruction.mnemonic()) {
+                let msg: String = format!("Invalid instruction, '{}' does not appear in the repertoire", instruction.mnemonic());
                 return Err(Error::new(ErrorKind::Other, msg));
             }
             
             let params: Vec<String> = instruction.clone().params();
             let num_params: usize = instruction.clone().params().len();
 
-            if instruction.clone().flag() != valid_instructions.get(instruction.mnemonic()).unwrap().clone().flag() {
+            if instruction.clone().flag() != repertoire.get(instruction.mnemonic()).unwrap().clone().flag() {
                 let msg: String = format!(
                     "The instruction '{}' has a wrong number of parameters, must have {}", 
                     instruction.mnemonic(),
-                    valid_instructions.get(instruction.mnemonic()).unwrap().clone().params().len()
+                    repertoire.get(instruction.mnemonic()).unwrap().clone().params().len()
                 );
 
                 return Err(Error::new(ErrorKind::Other, msg));
             }
 
-            if num_params != valid_instructions.get(instruction.mnemonic()).unwrap().clone().params().len() {
+            if num_params != repertoire.get(instruction.mnemonic()).unwrap().clone().params().len() {
                 let msg: String = format!(
                     "Invalid number of parameters in '{}', only has {} but get {}", 
                     instruction.mnemonic(), 
-                    valid_instructions.get(instruction.mnemonic()).unwrap().clone().params().len(), 
+                    repertoire.get(instruction.mnemonic()).unwrap().clone().params().len(), 
                     num_params
                 );
 
@@ -219,11 +201,11 @@ impl Validator {
     /// 
     /// - `Result<(), Error>` - Result indicating success or an `Error` if any validation step fails.
     /// 
-    pub fn validate(&self) -> Result<(), Error> {
+    pub fn validate(&self, repertoire: &HashMap<String, Instruction>) -> Result<(), Error> {
         self.validate_program()?;
         self.validate_variables()?;
         self.validate_init()?;
-        self.validate_instructions()?;
+        self.validate_instructions(repertoire)?;
         self.write_file()?;
         
         Ok(())
