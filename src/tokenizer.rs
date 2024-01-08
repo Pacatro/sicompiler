@@ -176,6 +176,17 @@ impl Tokenizer {
         Tokenizer { input }
     }
 
+    /// Tokenizes the content of a repertoire file, creating a mapping of mnemonics to instructions.
+    ///
+    /// # Arguments
+    ///
+    /// - `repertoire_input` - A string representing the path to the repertoire file.
+    ///
+    /// # Returns
+    ///
+    /// - `Result<HashMap<String, Instruction>, Error>` - Result containing a mapping of mnemonics to instructions
+    ///   if successful, or an `Error` if any issues occur during tokenization or file reading.
+    ///
     pub fn tokenize_repertoire(repertorie_input: &str) -> Result<HashMap<String, Instruction>, Error> {
         let mut repertorie: HashMap<String, Instruction> = HashMap::from([
             (String::from("HALT"), Instruction::new("HALT", vec![]))
