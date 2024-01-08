@@ -18,33 +18,28 @@ fn main() {
     
     let now: Instant = Instant::now();
     
-    let repertoire_path: String;
-    
-    match args.repertoire_path {
-        Some(path) => repertoire_path = path,
-        None => repertoire_path = String::from("src/config/default-repertoire.txt"),
-    }
+    let repertoire_path: String = match args.repertoire_path {
+        Some(path) => path,
+        None => String::from("src/config/default-repertoire.txt"),
+    };
     
     let tokenizer: Tokenizer = Tokenizer::new(args.input_path);
-    let repertoire: HashMap<String, Instruction>;
 
-    match Tokenizer::tokenize_repertoire(&repertoire_path) {
-        Ok(result) => repertoire = result,
+    let repertoire: HashMap<String, Instruction> = match Tokenizer::tokenize_repertoire(&repertoire_path) {
+        Ok(result) => result,
         Err(err) => {
             println!("Error: {}", err);
             return;
         } 
-    }
+    };
 
-    let tokens: Program;
-
-    match tokenizer.tokenize() {
-        Ok(result) => tokens = result,
+    let tokens: Program = match tokenizer.tokenize() {
+        Ok(result) => result,
         Err(err) => {
             eprintln!("Error: {}", err);
             return;
         }
-    }
+    };
 
     let validator: Validator = Validator::new(tokens, args.output_path);
     
