@@ -271,7 +271,8 @@ impl Tokenizer {
         let sections: Vec<&str> = content.split('@').collect();
 
         if sections.len() != 3 {
-            return Err(Error::new(ErrorKind::Other, "Invalid number of sections"));
+            return Err(Error::new(ErrorKind::Other, 
+                       format!("Invalid number of sections, must be 3 but get {}", sections.len())));
         }
         
         let mut variables: Vec<Variable> = Vec::new();
