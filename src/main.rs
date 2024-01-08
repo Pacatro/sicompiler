@@ -20,7 +20,7 @@ fn main() {
     
     let repertoire_path: String = match args.repertoire_path {
         Some(path) => path,
-        None => String::from("src/config/default-repertoire.txt"),
+        None => String::from("src/config/default-repertoire.rep"),
     };
     
     let tokenizer: Tokenizer = Tokenizer::new(args.input_path);

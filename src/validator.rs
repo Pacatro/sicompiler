@@ -142,10 +142,6 @@ impl Validator {
     /// - `Result<(), Error>` - Result indicating success or an `Error` if any instruction is invalid or has incorrect parameters.
     /// 
     fn validate_instructions(&self, repertoire: &HashMap<String, Instruction>) -> Result<(), Error> {
-        if !self.tokens.instructions().contains(repertoire.get("HALT").unwrap()) {
-            return Err(Error::new(ErrorKind::Other, "Missing 'HALT' instruction"));
-        }
-
         for instruction in self.tokens.instructions() {
             if !repertoire.contains_key(instruction.mnemonic()) {
                 let msg: String = format!("Invalid instruction, '{}' does not appear in the repertoire", instruction.mnemonic());
@@ -186,7 +182,11 @@ impl Validator {
     }
     
     /// Creates a new `Validator` instance with the specified tokens and output file.
-    pub fn new(tokens: Program, output_file: String) -> Validator { 
+    pub fn new(tokens: Program, output_file: String) -> Validator {
+        if output_file.is_empty() { 
+            return Validator { tokens, output_file: String::from("out.txt") }
+        }
+
         Validator { tokens, output_file }
     }
 

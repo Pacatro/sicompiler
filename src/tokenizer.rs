@@ -131,17 +131,23 @@ impl Tokenizer {
     /// - `section` - The varibles section of the file
     /// 
     /// ## Returns 
-    /// A vector of `Varibles` instances.
-    fn tokenize_variables(section: &str) -> Vec<Variable> {
+    /// A vector of `Varibles` instances or an Error.
+    fn tokenize_variables(section: &str) -> Result<Vec<Variable>, Error> {
         let mut variables: Vec<Variable> = Vec::new();
         
         for token in section.lines() {
             if token.is_empty() { continue }
+    
             let parts: Vec<&str> = token.split_whitespace().collect();
+            
+            if parts.len() != 2 { 
+                return Err(Error::new(ErrorKind::InvalidData, "Invalid variable format, the correct way is <DIR NAME>"));
+            }
+
             variables.push(Variable::new(parts[0], parts[1]));
         }
 
-        variables
+        Ok(variables)
     }
 
     /// Tokenizes init section 
@@ -150,21 +156,24 @@ impl Tokenizer {
     /// - `section` - The init section of the file
     /// 
     /// ## Returns 
-    /// A `Init` instances.
-    fn tokenize_init(section: &str) -> Init {
+    /// A `Init` instances or an Error.
+    fn tokenize_init(section: &str) -> Result<Init, Error> {
         if section.is_empty() { 
-            return Init { dir: String::from("")}
-        
+            return Err(Error::new(ErrorKind::InvalidData, "There is no any Init section."));
         }
 
         let valid_section: Vec<&str> = section.split_whitespace().collect();
 
         if valid_section.is_empty() { 
-            return Init { dir: String::from("")}
+            return Err(Error::new(ErrorKind::InvalidData, "There is no any Init address."));
+        }
+
+        if valid_section.len() > 1 {
+            return Err(Error::new(ErrorKind::InvalidData, "There is more than one Init address."));
         }
 
         let dir: String = valid_section[0].to_string();
-        Init { dir }
+        Ok(Init { dir })
     }
     
     /// Creates a new `Tokenizer` instance with the specified input file name.
@@ -188,18 +197,29 @@ impl Tokenizer {
     ///   if successful, or an `Error` if any issues occur during tokenization or file reading.
     ///
     pub fn tokenize_repertoire(repertorie_input: &str) -> Result<HashMap<String, Instruction>, Error> {
-        let mut repertorie: HashMap<String, Instruction> = HashMap::from([
-            (String::from("HALT"), Instruction::new("HALT", vec![]))
-        ]);
+        let mut repertorie: HashMap<String, Instruction> = HashMap::new();
         
         let content: String = fs::read_to_string(repertorie_input)?;
 
-        if content.lines().count() > 32 {
-            let msg = format!("Invalid number of instructions, the max is 32 but get {}", content.lines().count());
+        if !content.contains("$") {
+            let msg = format!("Invalid repertoire structure, the file must contain a microprogram section.");
             return Err(Error::new(ErrorKind::Other, msg));
         }
 
-        for token in content.lines() {
+        let content: Vec<&str> = content.split('$').collect();
+
+        let mut instructions_part: &str = content[2];
+
+        if instructions_part.starts_with("\n") {
+            instructions_part = &instructions_part[1..];
+        }
+
+        if instructions_part.lines().count() > 32 {
+            let msg = format!("Invalid number of instructions, the max is 32 but get {}", instructions_part.lines().count());
+            return Err(Error::new(ErrorKind::Other, msg));
+        }
+
+        for token in instructions_part.lines() {
             if token.is_empty() { continue }
             
             let parts: Vec<&str> = token.split_whitespace().collect();
@@ -256,12 +276,12 @@ impl Tokenizer {
         
         let mut variables: Vec<Variable> = Vec::new();
         if let Some(variable_section) = sections.get(0) {
-            variables = Tokenizer::tokenize_variables(variable_section);
+            variables = Tokenizer::tokenize_variables(variable_section)?;
         }
         
         let mut init: Init = Init { dir: "".to_string() };
         if let Some(init_section) = sections.get(1) {
-            init = Tokenizer::tokenize_init(init_section);
+            init = Tokenizer::tokenize_init(init_section)?;
         }
 
         if init.dir.is_empty() {
