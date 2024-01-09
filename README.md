@@ -91,6 +91,15 @@ A program is divided into three clearly differentiated sections, each of them se
 
 A `repertoire` of instructions is the set of instructions that can be in the SiCoMe program.
 
+The structure of a repertoire is like this:
+
+```terminal
+$
+<microprogram section> (Not implemented)
+$
+<valid instructions>
+```
+
 #### Repertoire example
 
 ```terminal
@@ -118,15 +127,6 @@ CSR true 8000100 403100 1000100 200200
 CSR_R true 8000100 403100 1200200
 ISZ true 8000100 1100 4100 1000100 600 200200
 ISZ_R true 8000100 1100 4100 1000100 200700
-```
-
-The structure of a repertoire is like this:
-
-```terminal
-$
-<microprogram section> (Not implemented)
-$
-<valid instructions>
 ```
 
 ## Setup 💻
