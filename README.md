@@ -145,7 +145,7 @@ cd sicompiler
 cargo build
 ```
 
-## TODOs
+## TODOs 🏁
 
 - [ ] Write tests
 - [ ] Check how the microprogram part of repertoires works
