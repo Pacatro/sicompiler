@@ -111,6 +111,7 @@ impl Tokenizer {
     /// 
     /// ## Returns 
     /// A vector of `Instruction` instances.
+    /// 
     fn tokenize_instructions(section: &str) -> Vec<Instruction> {
         let mut instructions: Vec<Instruction> = Vec::new();
         
@@ -132,6 +133,7 @@ impl Tokenizer {
     /// 
     /// ## Returns 
     /// A vector of `Varibles` instances or an Error.
+    /// 
     fn tokenize_variables(section: &str) -> Result<Vec<Variable>, Error> {
         let mut variables: Vec<Variable> = Vec::new();
         
@@ -157,6 +159,7 @@ impl Tokenizer {
     /// 
     /// ## Returns 
     /// A `Init` instances or an Error.
+    /// 
     fn tokenize_init(section: &str) -> Result<Init, Error> {
         if section.is_empty() { 
             return Err(Error::new(ErrorKind::InvalidData, "There is no any Init section."));
@@ -181,6 +184,7 @@ impl Tokenizer {
     /// ## Arguments
     ///
     /// - `input` - The name of the input file to be tokenized.
+    /// 
     pub fn new(input: String) -> Tokenizer { 
         Tokenizer { input }
     }

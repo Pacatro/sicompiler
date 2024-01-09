@@ -183,10 +183,6 @@ impl Validator {
     
     /// Creates a new `Validator` instance with the specified tokens and output file.
     pub fn new(tokens: Program, output_file: String) -> Validator {
-        if output_file.is_empty() { 
-            return Validator { tokens, output_file: String::from("out.txt") }
-        }
-
         Validator { tokens, output_file }
     }
 

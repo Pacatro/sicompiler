@@ -7,7 +7,7 @@ pub struct Cli {
     pub input_path: String,
 
     /// The output path to write to
-    pub output_path: String,
+    pub output_path: Option<String>,
 
     /// The repertoire of instructions
     #[arg(short = 'r', long = "repertoire")]

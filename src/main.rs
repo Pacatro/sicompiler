@@ -1,18 +1,15 @@
-mod tokenizer;
-mod validator;
+mod structs;
 mod models;
 mod args;
 
 use args::Cli;
-use tokenizer::Tokenizer;
-use validator::Validator;
+use structs::{tokenizer::Tokenizer, validator::Validator};
 use models::{program::Program, instruction::Instruction};
 
 use clap::Parser;
 use std::{time::Instant, collections::HashMap};
 
-// TODO: Restructure project
-// TODO: Check how to know what number of arguments recive the instruction
+// TODO: WRITE TESTS
 fn main() {
     let args: Cli = Cli::parse();
     
@@ -21,6 +18,11 @@ fn main() {
     let repertoire_path: String = match args.repertoire_path {
         Some(path) => path,
         None => String::from("src/config/default-repertoire.rep"),
+    };
+
+    let output_path: String = match args.output_path {
+        Some(path) => path,
+        None => String::from("out.txt")
     };
     
     let tokenizer: Tokenizer = Tokenizer::new(args.input_path);
@@ -41,14 +43,11 @@ fn main() {
         }
     };
 
-    let validator: Validator = Validator::new(tokens, args.output_path);
+    let validator: Validator = Validator::new(tokens, output_path);
     
-    match validator.validate(&repertoire) {
-        Ok(_) => {},
-        Err(err) => {
-            eprintln!("Error: {}", err);
-            return;
-        },
+    if let Err(err) = validator.validate(&repertoire) {
+        eprintln!("Error: {}", err);
+        return;
     }
 
     println!("Finished in {}s", now.elapsed().as_secs_f32());

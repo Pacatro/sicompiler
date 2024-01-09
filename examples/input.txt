@@ -1,0 +1,33 @@
+0 0003  ;Numero 1
+1 0003  ;Numero 2
+3 0000  ;Resultado
+
+*** amia
+mainama ***
+
+@
+6
+@
+
+CRA
+CRF
+ADD 0001
+ROR_F_ACC
+SFZ
+JMP 12  ;F!=0
+
+;-----F==0-----
+CRA
+CRF
+ADD 0000
+ROL_F_ACC
+STA 0004
+HALT
+
+;-----F!=0-----
+CRA
+CRF
+ADD 0001
+ROL_F_ACC
+STA 0004
+HALT
