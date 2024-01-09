@@ -46,6 +46,18 @@ line
 comment***
 ```
 
+### Program structure
+
+A program is divided into three clearly differentiated sections, each of them separated by the `@` character.
+
+```terminal
+<variables declaration>
+@
+<start dir>
+@
+<sentences>
+```
+
 #### Program example
 
 ```terminal
@@ -73,18 +85,6 @@ ADD 0001
 ROL_F_ACC 
 STA 0004
 HALT 
-```
-
-### Program structure
-
-A program is divided into three clearly differentiated sections, each of them separated by the `@` character.
-
-```terminal
-<variables declaration>
-@
-<start dir>
-@
-<sentences>
 ```
 
 ### Repertoire structure
