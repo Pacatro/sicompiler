@@ -129,7 +129,7 @@ $
 <valid instructions>
 ```
 
-## Setup
+## Setup 💻
 
 If you want to colaborate to add new features to the project you must do this simples steps.
 
@@ -137,7 +137,7 @@ If you want to colaborate to add new features to the project you must do this si
 
 - You must have Rust installed with cargo: <https://www.rust-lang.org/es/tools/install>
 
-### Using cargo 💻
+### Using cargo
 
 ```bash
 git clone git@github.com:Pacatro/sicompiler.git
