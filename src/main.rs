@@ -9,7 +9,6 @@ use models::{program::Program, instruction::Instruction};
 use clap::Parser;
 use std::{time::Instant, collections::HashMap};
 
-// TODO: WRITE TESTS
 fn main() {
     let args: Cli = Cli::parse();
     

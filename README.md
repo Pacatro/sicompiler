@@ -144,3 +144,9 @@ git clone git@github.com:Pacatro/sicompiler.git
 cd sicompiler
 cargo build
 ```
+
+## TODOs
+
+- [ ] Write tests
+- [ ] Check how the microprogram part of repertoires works
+- [ ] Write some new docs
