@@ -215,7 +215,7 @@ impl Tokenizer {
         }
 
         if instructions_part.lines().count() > 32 {
-            let msg = format!("Invalid number of instructions, the max is 32 but get {}", instructions_part.lines().count());
+            let msg: String = format!("Invalid number of instructions, the max is 32 but get {}", instructions_part.lines().count());
             return Err(Error::new(ErrorKind::Other, msg));
         }
 
