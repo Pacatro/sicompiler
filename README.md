@@ -9,13 +9,13 @@ The only thing you need to do is write the next command in the directory you hav
 ### Without custom repertoire
 
 ```terminal
-./sc <input_file_path> <output_file_path>
+./sicompiler <input_file_path> <output_file_path>
 ```
 
 ### With custom repertoire
 
 ```terminal
-./sc <input_file_path> <output_file_path> -r <custom_repertoire_path>
+./sicompiler <input_file_path> <output_file_path> -r <custom_repertoire_path>
 ```
 
 The result will be an output file with the path you write or a default path in the same directory you are.
