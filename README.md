@@ -2,7 +2,7 @@
 
 This is a simple compiler that prepare files for be using in SiCoMe simulator realized by the University of Cordoba (UCO).
 
-> [!IMPORTANT]
+> [!WARNING]
 > These project is not complete, don't hesitate to report any bug you find
 
 ## How to use :pencil2:
