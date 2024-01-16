@@ -237,12 +237,8 @@ impl Tokenizer {
             if flag {
                 instruction.set_flag(true);
                 
-                // ! At this momment, I don't have any idea to know how many params can have 
-                // ! an instructions based on the repertoire.
-                
-                // TODO: Figure out how many params can have each instruction
-                
-                // instruction.set_params(vec!["0x123"]);
+                //* An instruction only have 1 argument but  
+                instruction.set_params(vec!["0x123"]);
             }
 
             repertorie.insert(mnemonic, instruction);

@@ -9,7 +9,7 @@ This is a simple compiler that prepare files for be using in SiCoMe simulator re
 
 The only thing you need to do is write the next command in the directory you have the executable.
 
-### Without custom repertoire
+### Execution
 
 ```terminal
 sicompiler [OPTIONS] <INPUT_PATH> [OUTPUT_PATH]
@@ -97,7 +97,7 @@ HALT
 > [!IMPORTANT]
 > These standards are subject to updates.
 
-This project is not complete, so is possible that it may be update in the future, but in this momment this compiler meets some standars that have been written resently.
+This compiler meets some standars that have been written resently.
 
 ### One-line comments
 

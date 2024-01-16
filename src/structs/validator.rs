@@ -32,13 +32,11 @@ impl Validator {
     /// ```
     /// 
     fn is_hex(params: &Vec<String>) -> bool {
-        for param in params {
-            if !param.chars().next().unwrap().is_ascii_hexdigit() {
-                return false;
-            }
-        }
-
-        true
+        params.iter().all(|param: &String| {
+            param.chars()
+                .next()
+                .map_or(false, |first_char: char| first_char.is_ascii_hexdigit())
+        })
     }
 
     /// Writes the tokenized information to an output file.
@@ -165,28 +163,20 @@ impl Validator {
                 
                 return Err(Error::new(ErrorKind::Other, msg));
             }
-            
-            /*
-            TODO: Figure out how many params can have each instruction
 
-            !At this momment, I don't have any idea to know how many params can have an instructions based on the repertoire.
+            let params: &Vec<String> = instruction.params();
+            let rep_params: &Vec<String> = rep_instruction.params();
             
-            let num_params: usize = instruction.params().len();
-            
-            if num_params != repertoire.get(instruction.mnemonic()).unwrap().params().len() {
+            if params.len() != rep_params.len() {
                 let msg: String = format!(
                     "Invalid number of parameters in '{}', only has {} but get {}", 
                     instruction.mnemonic(), 
-                    repertoire.get(instruction.mnemonic()).unwrap().params().len(), 
-                    num_params
+                    rep_params.len(), 
+                    instruction.params().len()
                 );
 
                 return Err(Error::new(ErrorKind::Other, msg));
             } 
-
-            */
-        
-            let params: &Vec<String> = instruction.params();
 
             if instruction.flag() && !Validator::is_hex(&params) {
                 let msg: String = format!("Invalid parameters in '{}', the parameters must be in hex base", instruction.mnemonic());
