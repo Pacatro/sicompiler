@@ -35,7 +35,7 @@ impl Tokenizer {
     ///
     fn remove_oneline_comments(content: &str) -> String {
         content.lines()
-            .map(|line| {
+            .map(|line: &str| {
                 let trimmed_line: &str = line.trim();
                 if trimmed_line.is_empty() {
                     String::from(line)
@@ -207,7 +207,7 @@ impl Tokenizer {
         let content: String = fs::read_to_string(&self.rep)?;
 
         if !content.contains("$") {
-            let msg = format!("Invalid repertoire structure, the file must contain a microprogram section.");
+            let msg: String = format!("Invalid repertoire structure, the file must contain a microprogram section.");
             return Err(Error::new(ErrorKind::Other, msg));
         }
 
@@ -278,8 +278,9 @@ impl Tokenizer {
         let sections: Vec<&str> = content.split('@').collect();
 
         if sections.len() != 3 {
-            return Err(Error::new(ErrorKind::Other, 
-                       format!("Invalid number of sections, must be 3 but get {}", sections.len())));
+            return Err(Error::new(ErrorKind::Other, format!(
+                "Invalid number of sections, must be 3 but get {}", sections.len()
+            )));
         }
         
         let mut variables: Vec<Variable> = Vec::new();
