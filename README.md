@@ -227,7 +227,7 @@ cargo build
 ## TODOs 🏁
 
 - [x] Refactoring
-- [ ] Custom Errors
+- [x] Custom Errors
 - [ ] Write tests
 - [ ] Figure out how many params can have each instruction
 - [ ] Write some new docs
