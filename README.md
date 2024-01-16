@@ -1,4 +1,4 @@
-# SiCompiler v0.1
+# SiCompiler v0.1.1
 
 This is a compiler that process files for be using in the SiCoMe simulator realized by the University of Cordoba (UCO), also check for syntax errors in your program.
 
