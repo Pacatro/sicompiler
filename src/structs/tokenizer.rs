@@ -237,7 +237,7 @@ impl Tokenizer {
             if flag {
                 instruction.set_flag(true);
                 
-                //* An instruction only have 1 argument but  
+                //* An instruction only have 1 argument  
                 instruction.set_params(vec!["0x123"]);
             }
 
