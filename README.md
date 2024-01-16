@@ -1,6 +1,6 @@
 # SiCompiler v0.1
 
-This is a simple compiler that prepare files for be using in SiCoMe simulator realized by the University of Cordoba (UCO).
+This is a compiler that process files for be using in the SiCoMe simulator realized by the University of Cordoba (UCO), also check for syntax errors in your SiCoMe program.
 
 > [!WARNING]
 > These project is not complete, don't hesitate to report any bug you find
@@ -200,6 +200,13 @@ CSR_R true 8000100 403100 1200200
 ISZ true 8000100 1100 4100 1000100 600 200200
 ISZ_R true 8000100 1100 4100 1000100 200700
 ```
+
+### Error cases
+
+- The program does not follow the structure defined by the standard.
+- The instructions in the program are not defined in the repertoire.
+- The instructions does not have the correct number of parameters.
+- The parameters of the instructions are not in hex base.
 
 ## Setup 💻
 

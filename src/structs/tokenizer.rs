@@ -1,8 +1,8 @@
 use std::collections::HashMap;
-use std::fs;
-use std::io::{Error, ErrorKind};
+use std::{fs, io};
 
 use crate::models::{instruction::Instruction, variable::Variable, init::Init, program::Program};
+use crate::errors::error::SicompilerError;
 
 /// The `Tokenizer` struct is responsible for tokenizing input source code,
 /// removing comments and empty lines, and providing a sequence of valid code lines.
@@ -135,7 +135,7 @@ impl Tokenizer {
     /// ## Returns 
     /// A vector of `Varibles` instances or an Error.
     /// 
-    fn tokenize_variables(section: &str) -> Result<Vec<Variable>, Error> {
+    fn tokenize_variables(section: &str) -> Result<Vec<Variable>, SicompilerError> {
         let mut variables: Vec<Variable> = Vec::new();
         
         for token in section.lines() {
@@ -144,7 +144,7 @@ impl Tokenizer {
             let parts: Vec<&str> = token.split_whitespace().collect();
             
             if parts.len() != 2 { 
-                return Err(Error::new(ErrorKind::InvalidData, "Invalid variable format, the correct way is <DIR NAME>"));
+                return Err(SicompilerError::TokenizationError(format!("Invalid variable format, the correct way is <DIR NAME>")));
             }
 
             variables.push(Variable::new(parts[0], parts[1]));
@@ -161,19 +161,19 @@ impl Tokenizer {
     /// ## Returns 
     /// A `Init` instances or an Error.
     /// 
-    fn tokenize_init(section: &str) -> Result<Init, Error> {
+    fn tokenize_init(section: &str) -> Result<Init, SicompilerError> {
         if section.is_empty() { 
-            return Err(Error::new(ErrorKind::InvalidData, "There is no any Init section."));
+            return Err(SicompilerError::TokenizationError(format!("There is no any Init section.")));
         }
 
         let valid_section: Vec<&str> = section.split_whitespace().collect();
 
         if valid_section.is_empty() { 
-            return Err(Error::new(ErrorKind::InvalidData, "There is no any Init address."));
+            return Err(SicompilerError::TokenizationError(format!("There is no any Init address.")));
         }
 
         if valid_section.len() > 1 {
-            return Err(Error::new(ErrorKind::InvalidData, "There is more than one Init address."));
+            return Err(SicompilerError::TokenizationError(format!("There is more than one Init address.")));
         }
 
         let dir: &str = valid_section[0];
@@ -201,14 +201,15 @@ impl Tokenizer {
     /// - `Result<HashMap<String, Instruction>, Error>` - Result containing a mapping of mnemonics to instructions
     ///   if successful, or an `Error` if any issues occur during tokenization or file reading.
     ///
-    pub fn tokenize_repertoire(&self) -> Result<HashMap<String, Instruction>, Error> {
+    pub fn tokenize_repertoire(&self) -> Result<HashMap<String, Instruction>, SicompilerError> {
         let mut repertorie: HashMap<String, Instruction> = HashMap::new();
         
         let content: String = fs::read_to_string(&self.rep)?;
 
         if !content.contains("$") {
-            let msg: String = format!("Invalid repertoire structure, the file must contain a microprogram section.");
-            return Err(Error::new(ErrorKind::Other, msg));
+            return Err(SicompilerError::TokenizationError(
+                format!("Invalid repertoire structure, the file must contain a microprogram section.")
+            ));
         }
 
         let content: Vec<&str> = content.split('$').collect();
@@ -220,8 +221,9 @@ impl Tokenizer {
         }
 
         if instructions_part.lines().count() > 32 {
-            let msg: String = format!("Invalid number of instructions, the max is 32 but get {}", instructions_part.lines().count());
-            return Err(Error::new(ErrorKind::Other, msg));
+            return Err(SicompilerError::TokenizationError(
+                format!("Invalid number of instructions, the max is 32 but get {}", instructions_part.lines().count())
+            ));
         }
 
         for token in instructions_part.lines() {
@@ -265,11 +267,14 @@ impl Tokenizer {
     /// - The number of sections in the file is not equal to 3.
     /// - No init dir is found.
     /// 
-    pub fn tokenize(&self) -> Result<Program, Error> {
-        let mut content: String = fs::read_to_string(&self.input)?;
+    pub fn tokenize(&self) -> Result<Program, SicompilerError> {
+        let mut content: String = fs::read_to_string(&self.input)
+            .map_err(|e: io::Error| 
+                SicompilerError::Io(io::Error::new(e.kind(), format!("Can't open {}", self.input)))
+            )?;
         
         if content.is_empty() { 
-            return Err(Error::new(ErrorKind::Other, "The file is empty"));
+            return Err(SicompilerError::TokenizationError(format!("The file is empty")));
         }
 
         content = Tokenizer::remove_oneline_comments(&content);
@@ -278,9 +283,9 @@ impl Tokenizer {
         let sections: Vec<&str> = content.split('@').collect();
 
         if sections.len() != 3 {
-            return Err(Error::new(ErrorKind::Other, format!(
-                "Invalid number of sections, must be 3 but get {}", sections.len()
-            )));
+            return Err(SicompilerError::TokenizationError(
+                format!("Invalid number of sections, must be 3 but get {}", sections.len())
+            ))
         }
         
         let mut variables: Vec<Variable> = Vec::new();
@@ -294,7 +299,9 @@ impl Tokenizer {
         }
 
         if init.dir().is_empty() {
-            return Err(Error::new(ErrorKind::Other, "No init dir found"));
+            return Err(SicompilerError::TokenizationError(
+                format!("No init dir found")
+            ));
         }
         
         let mut instructions: Vec<Instruction> = Vec::new();

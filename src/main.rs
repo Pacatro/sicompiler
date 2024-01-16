@@ -1,14 +1,14 @@
 use clap::Parser;
-use std::{time::Instant, process, error::Error};
+use std::{time::Instant, process};
 
-use sicompiler::models::args::Cli;
+use sicompiler::{models::args::Cli, errors::error::SicompilerError};
 
 fn main() {
     let cli: Cli = Cli::parse();
 
     let now: Instant = Instant::now();
 
-    sicompiler::run(&cli).unwrap_or_else(|err: Box<dyn Error>| {
+    sicompiler::run(&cli).unwrap_or_else(|err: SicompilerError| {
         eprintln!("Error: {}", err);
         process::exit(1);
     });

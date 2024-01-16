@@ -1,10 +1,12 @@
 pub mod models;
 mod structs;
+pub mod errors;
 
-use std::{collections::HashMap, error::Error};
+use std::collections::HashMap;
 
 use structs::{tokenizer::Tokenizer, validator::Validator};
 use models::{program::Program, instruction::Instruction, args::Cli};
+use errors::error::SicompilerError;
 
 /// Executes the main functionality of the program based on the provided command-line arguments.
 ///
@@ -14,9 +16,9 @@ use models::{program::Program, instruction::Instruction, args::Cli};
 ///
 /// ## Returns
 ///
-/// Returns a `Result` indicating success (`Ok(())`) or an error (`Err(Box<dyn Error>)`).
+/// Returns a `Result` indicating success (`Ok(())`) or an error (`Err(SicompilerError)`).
 ///
-pub fn run(cli: &Cli) -> Result<(), Box<dyn Error>>{
+pub fn run(cli: &Cli) -> Result<(), SicompilerError>{
     let tokenizer: Tokenizer = Tokenizer::new(cli.input_path.clone(), cli.repertoire_path.clone());
 
     let repertoire: HashMap<String, Instruction> = tokenizer.tokenize_repertoire()?;
