@@ -8,6 +8,7 @@ use crate::models::{instruction::Instruction, variable::Variable, init::Init, pr
 /// removing comments and empty lines, and providing a sequence of valid code lines.
 pub struct Tokenizer {
     input: String,
+    rep: String
 }
 
 impl Tokenizer {
@@ -35,7 +36,7 @@ impl Tokenizer {
     fn remove_oneline_comments(content: &str) -> String {
         content.lines()
             .map(|line| {
-                let trimmed_line = line.trim();
+                let trimmed_line: &str = line.trim();
                 if trimmed_line.is_empty() {
                     String::from(line)
                 } else if let Some(index) = trimmed_line.find(';') {
@@ -175,8 +176,8 @@ impl Tokenizer {
             return Err(Error::new(ErrorKind::InvalidData, "There is more than one Init address."));
         }
 
-        let dir: String = valid_section[0].to_string();
-        Ok(Init { dir })
+        let dir: &str = valid_section[0];
+        Ok(Init::new(dir))
     }
     
     /// Creates a new `Tokenizer` instance with the specified input file name.
@@ -185,8 +186,8 @@ impl Tokenizer {
     ///
     /// - `input` - The name of the input file to be tokenized.
     /// 
-    pub fn new(input: String) -> Tokenizer { 
-        Tokenizer { input }
+    pub fn new(input: String, rep: String) -> Tokenizer { 
+        Tokenizer { input, rep }
     }
 
     /// Tokenizes the content of a repertoire file, creating a mapping of mnemonics to instructions.
@@ -200,10 +201,10 @@ impl Tokenizer {
     /// - `Result<HashMap<String, Instruction>, Error>` - Result containing a mapping of mnemonics to instructions
     ///   if successful, or an `Error` if any issues occur during tokenization or file reading.
     ///
-    pub fn tokenize_repertoire(repertorie_input: &str) -> Result<HashMap<String, Instruction>, Error> {
+    pub fn tokenize_repertoire(&self) -> Result<HashMap<String, Instruction>, Error> {
         let mut repertorie: HashMap<String, Instruction> = HashMap::new();
         
-        let content: String = fs::read_to_string(repertorie_input)?;
+        let content: String = fs::read_to_string(&self.rep)?;
 
         if !content.contains("$") {
             let msg = format!("Invalid repertoire structure, the file must contain a microprogram section.");
@@ -235,7 +236,13 @@ impl Tokenizer {
 
             if flag {
                 instruction.set_flag(true);
-                instruction.set_params(vec!["0x123"]);
+                
+                // ! At this momment, I don't have any idea to know how many params can have 
+                // ! an instructions based on the repertoire.
+                
+                // TODO: Figure out how many params can have each instruction
+                
+                // instruction.set_params(vec!["0x123"]);
             }
 
             repertorie.insert(mnemonic, instruction);
@@ -284,12 +291,12 @@ impl Tokenizer {
             variables = Tokenizer::tokenize_variables(variable_section)?;
         }
         
-        let mut init: Init = Init { dir: "".to_string() };
+        let mut init: Init = Init::new("");
         if let Some(init_section) = sections.get(1) {
             init = Tokenizer::tokenize_init(init_section)?;
         }
 
-        if init.dir.is_empty() {
+        if init.dir().is_empty() {
             return Err(Error::new(ErrorKind::Other, "No init dir found"));
         }
         

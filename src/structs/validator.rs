@@ -62,7 +62,7 @@ impl Validator {
         }
 
         writeln!(file, "@")?;
-        writeln!(file, "{}", self.tokens.init().dir.clone())?;
+        writeln!(file, "{}", self.tokens.init().dir())?;
         writeln!(file, "@")?;
 
         for instruction in self.tokens.instructions() {
@@ -103,6 +103,7 @@ impl Validator {
     fn validate_variables(&self) -> Result<(), Error> {
         for variable in self.tokens.variables() {
             let var: Vec<String> = vec![variable.dir().to_string(), variable.name().to_string()];
+            
             if !Validator::is_hex(&var) {
                 let msg: String = format!("The varibale dir and name must be in hex base '{} {}'", variable.dir(), variable.name());
                 return Err(Error::new(ErrorKind::Other, msg));
@@ -123,8 +124,8 @@ impl Validator {
     /// - `Result<(), Error>` - Result indicating success or an `Error` if the initialization directory is not in hexadecimal format.
     /// 
     fn validate_init(&self) -> Result<(), Error> {
-        if !Validator::is_hex(&vec![self.tokens.init().dir.clone()]) {
-            let msg: String = format!("The init dir must be in hex base '{}'", self.tokens.init().dir);
+        if !Validator::is_hex(&vec![self.tokens.init().dir().to_string()]) {
+            let msg: String = format!("The init dir must be in hex base '{}'", self.tokens.init().dir());
             return Err(Error::new(ErrorKind::Other, msg));
         }
 
@@ -148,31 +149,46 @@ impl Validator {
                 return Err(Error::new(ErrorKind::Other, msg));
             }
             
-            let params: Vec<String> = instruction.clone().params();
-            let num_params: usize = instruction.clone().params().len();
-
-            if instruction.clone().flag() != repertoire.get(instruction.mnemonic()).unwrap().clone().flag() {
+            let rep_instruction: &Instruction = match repertoire.get(instruction.mnemonic()) {
+                Some(instruction) => instruction,
+                None => {
+                    return Err(Error::new(ErrorKind::Other, 
+                        format!("The instruction '{}' is not defined in the repertoire", instruction.mnemonic())))
+                }
+            };
+            
+            if instruction.flag() != rep_instruction.flag() {
                 let msg: String = format!(
-                    "The instruction '{}' has a wrong number of parameters, must have {}", 
+                    "The instruction '{}' must have some parameters", 
                     instruction.mnemonic(),
-                    repertoire.get(instruction.mnemonic()).unwrap().clone().params().len()
                 );
-
+                
                 return Err(Error::new(ErrorKind::Other, msg));
             }
+            
+            /*
+            TODO: Figure out how many params can have each instruction
 
-            if num_params != repertoire.get(instruction.mnemonic()).unwrap().clone().params().len() {
+            !At this momment, I don't have any idea to know how many params can have an instructions based on the repertoire.
+            
+            let num_params: usize = instruction.params().len();
+            
+            if num_params != repertoire.get(instruction.mnemonic()).unwrap().params().len() {
                 let msg: String = format!(
                     "Invalid number of parameters in '{}', only has {} but get {}", 
                     instruction.mnemonic(), 
-                    repertoire.get(instruction.mnemonic()).unwrap().clone().params().len(), 
+                    repertoire.get(instruction.mnemonic()).unwrap().params().len(), 
                     num_params
                 );
 
                 return Err(Error::new(ErrorKind::Other, msg));
-            }
+            } 
+
+            */
         
-            if num_params > 0 && !Validator::is_hex(&params) {
+            let params: &Vec<String> = instruction.params();
+
+            if instruction.flag() && !Validator::is_hex(&params) {
                 let msg: String = format!("Invalid parameters in '{}', the parameters must be in hex base", instruction.mnemonic());
                 return Err(Error::new(ErrorKind::Other, msg));
             }

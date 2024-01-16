@@ -12,16 +12,85 @@ The only thing you need to do is write the next command in the directory you hav
 ### Without custom repertoire
 
 ```terminal
-./sicompiler <input_file_path> <output_file_path>
+sicompiler [OPTIONS] <INPUT_PATH> [OUTPUT_PATH]
 ```
 
-### With custom repertoire
+### Options
 
 ```terminal
-./sicompiler <input_file_path> <output_file_path> -r <custom_repertoire_path>
+-r, --rep <REPERTOIRE_PATH>  The repertoire of instructions
+-h, --help                   Print help
+-V, --version                Print version
 ```
 
 The result will be an output file with the path you write or a default path in the same directory you are.
+
+### Input
+
+```termial
+0 0003  ;Number 1
+1 0003  ;Number 2
+3 0000  ;Resul
+
+*** This is a 
+multi-line comment ***
+
+@
+6
+@
+
+CRA
+CRF
+ADD 0001
+ROR_F_ACC
+SFZ
+JMP 12  ;F!=0
+
+;-----F==0-----
+CRA
+CRF
+ADD 0000
+ROL_F_ACC
+STA 0004
+HALT
+
+;-----F!=0-----
+CRA
+CRF
+ADD 0001
+ROL_F_ACC
+STA 0004
+HALT
+```
+
+### Output
+
+```terminal
+0 0003
+1 0003
+3 0000
+@
+6
+@
+CRA 
+CRF 
+ADD 0001
+ROR_F_ACC 
+SFZ 
+JMP 12
+CRA 
+CRF 
+ADD 0000
+ROL_F_ACC 
+STA 0004
+HALT 
+CRA 
+CRF 
+ADD 0001
+ROL_F_ACC 
+STA 0004
+HALT 
+```
 
 ## Standars :books:
 
@@ -150,6 +219,8 @@ cargo build
 
 ## TODOs 🏁
 
+- [x] Refactoring
+- [ ] Custom Errors
 - [ ] Write tests
-- [ ] Check how the microprogram part of repertoires works
+- [ ] Figure out how many params can have each instruction
 - [ ] Write some new docs

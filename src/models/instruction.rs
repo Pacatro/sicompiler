@@ -26,8 +26,8 @@ impl Instruction {
     }
 
     pub fn mnemonic(&self) -> &str { &self.mnemonic }
-    pub fn flag(self) -> bool { self.flag }
-    pub fn params(self) -> Vec<String> { self.params }
+    pub fn flag(&self) -> bool { self.flag }
+    pub fn params(&self) -> &Vec<String> { &self.params }
 
     pub fn set_flag(&mut self, flag: bool) { self.flag = flag; }
     pub fn set_params(&mut self, params: Vec<&str>) { self.params = params.iter().map(|s| String::from(*s)).collect(); }
