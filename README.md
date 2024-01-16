@@ -1,11 +1,21 @@
 # SiCompiler v0.1
 
-This is a compiler that process files for be using in the SiCoMe simulator realized by the University of Cordoba (UCO), also check for syntax errors in your SiCoMe program.
+This is a compiler that process files for be using in the SiCoMe simulator realized by the University of Cordoba (UCO), also check for syntax errors in your program.
 
 > [!WARNING]
 > These project is not complete, don't hesitate to report any bug you find
 
 ## How to use :pencil2:
+
+### Instalation
+
+#### Using cargo
+
+You must have Rust installed with rustup: <https://www.rust-lang.org/es/tools/install>
+
+```terminal
+cargo install sicompiler
+```
 
 The only thing you need to do is write the next command in the directory you have the executable.
 
@@ -210,13 +220,9 @@ ISZ_R true 8000100 1100 4100 1000100 200700
 
 ## Setup 💻
 
-If you want to colaborate to add new features to the project you must do this simples steps.
+If you want to colaborate and add new features to the project you must do this simples steps.
 
-### Prerequisites
-
-- You must have Rust installed with cargo: <https://www.rust-lang.org/es/tools/install>
-
-### Using cargo
+### Colaborate
 
 ```bash
 git clone git@github.com:Pacatro/sicompiler.git
