@@ -11,6 +11,6 @@ pub struct Cli {
     pub output_path: String,
 
     /// The repertoire of instructions
-    #[arg(short = 'r', long = "rep", default_value = "src/config/default-rep.rep")]
+    #[arg(short = 'r', long = "rep")]
     pub repertoire_path: String,
 }

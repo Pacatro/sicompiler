@@ -22,7 +22,14 @@ The only thing you need to do is write the next command in the directory you hav
 ### Execution
 
 ```terminal
-sicompiler [OPTIONS] <INPUT_PATH> [OUTPUT_PATH]
+sicompiler --rep <REPERTOIRE_PATH> <INPUT_PATH> [OUTPUT_PATH]
+```
+
+### Arguments
+
+```terminal
+<INPUT_PATH>   The input path to compile
+[OUTPUT_PATH]  The output path to write to [default: out.txt]
 ```
 
 ### Options
