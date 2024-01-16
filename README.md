@@ -5,13 +5,13 @@ This is a compiler that process files for be using in the SiCoMe simulator reali
 > [!WARNING]
 > These project is not complete, don't hesitate to report any bug you find
 
-## How to use :pencil2:
+## :pencil2: How to use
 
 ### Instalation
 
 #### Using cargo
 
-You must have Rust installed with rustup: <https://www.rust-lang.org/es/tools/install>
+You must have [Rust](https://www.rust-lang.org/es/tools/install) installed with rustup:
 
 ```terminal
 cargo install sicompiler
@@ -102,7 +102,7 @@ STA 0004
 HALT 
 ```
 
-## Standars :books:
+## :books: Standars
 
 > [!IMPORTANT]
 > These standards are subject to updates.
@@ -218,7 +218,7 @@ ISZ_R true 8000100 1100 4100 1000100 200700
 - The instructions does not have the correct number of parameters.
 - The parameters of the instructions are not in hex base.
 
-## Setup 💻
+## 💻 Development
 
 If you want to colaborate and add new features to the project you must do this simples steps.
 
@@ -229,6 +229,10 @@ git clone git@github.com:Pacatro/sicompiler.git
 cd sicompiler
 cargo build
 ```
+
+## 🔑 License
+
+[MIT](https://opensource.org/license/mit/) - Created by **P4k0**.
 
 ## TODOs 🏁
 
