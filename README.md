@@ -5,17 +5,17 @@ This is a compiler that process files for be using in the SiCoMe simulator reali
 > [!WARNING]
 > These project is not complete, don't hesitate to report any bug you find
 
-## :pencil2: How to use
+## 🛠️ Instalation
 
-### Instalation
-
-#### Using cargo
+### Using cargo
 
 You must have [Rust](https://www.rust-lang.org/es/tools/install) installed with rustup:
 
 ```terminal
 cargo install sicompiler
 ```
+
+## :pencil2: How to use
 
 The only thing you need to do is write the next command in the directory you have the executable.
 
@@ -102,7 +102,7 @@ STA 0004
 HALT 
 ```
 
-## :books: Standars
+## 📚 Standars
 
 > [!IMPORTANT]
 > These standards are subject to updates.
@@ -217,6 +217,10 @@ ISZ_R true 8000100 1100 4100 1000100 200700
 - The instructions in the program are not defined in the repertoire.
 - The instructions does not have the correct number of parameters.
 - The parameters of the instructions are not in hex base.
+
+## 📑 Libraries used
+
+- [Clap](https://crates.io/crates/clap)
 
 ## 💻 Development
 
