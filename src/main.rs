@@ -9,7 +9,7 @@ fn main() {
     let now: Instant = Instant::now();
 
     sicompiler::run(&cli).unwrap_or_else(|err: SicompilerError| {
-        eprintln!("Error: {}", err);
+        eprintln!("{err}");
         process::exit(1);
     });
     
