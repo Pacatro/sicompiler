@@ -195,8 +195,8 @@ impl Validator {
     }
     
     /// Creates a new `Validator` instance with the specified tokens and output file.
-    pub fn new(tokens: Program, output_file: String) -> Validator {
-        Validator { tokens, output_file }
+    pub fn new(tokens: Program, output_file: &str) -> Validator {
+        Validator { tokens, output_file: output_file.to_string() }
     }
 
     /// Validates the tokenized program, variables, initialization directory, and instructions,

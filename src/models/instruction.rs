@@ -18,11 +18,11 @@ impl Instruction {
     ///
     /// A new `Instruction` instance.
     pub fn new(mnemonic: &str, params: Vec<&str>) -> Instruction {
-        if params.len() == 0 {
-            return Instruction { mnemonic: String::from(mnemonic), flag: false, params: vec![] };
+        if params.is_empty() {
+            return Instruction { mnemonic: mnemonic.to_string(), flag: false, params: vec![] };
         }
         
-        Instruction { mnemonic: String::from(mnemonic), flag: true, params: params.iter().map(|s| String::from(*s)).collect() }
+        Instruction { mnemonic: mnemonic.to_string(), flag: true, params: params.iter().map(|s| String::from(*s)).collect() }
     }
 
     pub fn mnemonic(&self) -> &str { &self.mnemonic }

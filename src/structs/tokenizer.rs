@@ -186,8 +186,8 @@ impl Tokenizer {
     ///
     /// - `input` - The name of the input file to be tokenized.
     /// 
-    pub fn new(input: String, rep: String) -> Tokenizer { 
-        Tokenizer { input, rep }
+    pub fn new(input: &str, rep: &str) -> Tokenizer { 
+        Tokenizer { input: input.to_string(), rep: rep.to_string() }
     }
 
     /// Tokenizes the content of a repertoire file, creating a mapping of mnemonics to instructions.

@@ -1,5 +1,5 @@
 pub mod models;
-mod structs;
+pub mod structs;
 pub mod errors;
 
 use std::collections::HashMap;
@@ -19,13 +19,13 @@ use errors::error::SicompilerError;
 /// Returns a `Result` indicating success (`Ok(())`) or an error (`Err(SicompilerError)`).
 ///
 pub fn run(cli: &Cli) -> Result<(), SicompilerError>{
-    let tokenizer: Tokenizer = Tokenizer::new(cli.input_path.clone(), cli.repertoire_path.clone());
+    let tokenizer: Tokenizer = Tokenizer::new(&cli.input_path, &cli.repertoire_path);
 
     let repertoire: HashMap<String, Instruction> = tokenizer.tokenize_repertoire()?;
 
     let tokens: Program = tokenizer.tokenize()?;
 
-    let validator: Validator = Validator::new(tokens, cli.output_path.clone());
+    let validator: Validator = Validator::new(tokens, &cli.output_path);
     
     validator.validate(&repertoire)?;
 
