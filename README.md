@@ -2,6 +2,8 @@
 
 This is a compiler that process files for be using in the SiCoMe simulator realized by the University of Cordoba (UCO), also check for syntax errors in your program.
 
+You can see this project also in [Crates.io](https://crates.io/crates/sicompiler)
+
 > [!WARNING]
 > These project is not complete, don't hesitate to report any bug you find
 
@@ -15,7 +17,7 @@ You must have [Rust](https://www.rust-lang.org/es/tools/install) installed with 
 cargo install sicompiler
 ```
 
-## :pencil2: How to use
+## ✏️ How to use
 
 The only thing you need to do is write the next command in the directory you have the executable.
 
