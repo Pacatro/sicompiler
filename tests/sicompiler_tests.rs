@@ -44,3 +44,14 @@ fn compile_success() -> Result<(), SicompilerError> {
 
     Ok(())
 }
+
+#[test]
+fn compile_fails() {
+    let cli: Cli = Cli {
+        input_path: "tests/utils/bad-test-input.txt".to_string(),
+        output_path: "tests/utils/bad-test-out.txt".to_string(),
+        repertoire_path: "tests/utils/test-repertoire.rep".to_string()
+    };
+
+    assert!(sicompiler::run(&cli).is_err());
+}

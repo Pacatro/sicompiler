@@ -1,0 +1,15 @@
+0 0003  ;Numero 1
+SFDJHGDSF 0003  ;Numero 2
+3 IURUIEU  ;Resultado
+
+@
+6
+@
+
+CRA 1 2
+CRF 1
+ADD
+RO_F_ACC
+SFZ
+JMP 12  ;F!=0
+RETURN ;Not exits in repertoire
