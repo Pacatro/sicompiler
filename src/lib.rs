@@ -18,7 +18,7 @@ use errors::error::SicompilerError;
 ///
 /// Returns a `Result` indicating success (`Ok(())`) or an error (`Err(SicompilerError)`).
 ///
-pub fn run(cli: &Cli) -> Result<(), SicompilerError>{
+pub fn run(cli: &Cli) -> Result<(), SicompilerError> {
     let tokenizer: Tokenizer = Tokenizer::new(&cli.input_path, &cli.repertoire_path);
 
     let repertoire: HashMap<String, Instruction> = tokenizer.tokenize_repertoire()?;
