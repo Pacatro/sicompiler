@@ -12,6 +12,14 @@ pub struct Tokenizer {
 }
 
 impl Tokenizer {
+    /// Remove one-line comments and empty lines from the input source code.
+    /// 
+    /// ## Arguments
+    /// - `content` - The file content
+    /// 
+    /// ## Returns
+    /// A String with the new content without comments and empty lines.
+    /// 
     fn remove_oneline_comments(content: &str) -> String {
         content.lines()
             .map(|line: &str| {
@@ -28,6 +36,14 @@ impl Tokenizer {
             .join("\n")
     }
 
+    /// Remove multi-line comments and empty lines from the input source code.
+    /// 
+    /// ## Arguments
+    /// - `content` - The file content without one-line comments
+    /// 
+    /// ## Returns
+    /// A String with the new content without comments and empty lines.
+    /// 
     fn remove_multiline_comments(content: &str) -> String {
         let mut result: String = String::new();
         let mut in_comment: bool = false;

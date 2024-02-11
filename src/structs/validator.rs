@@ -15,6 +15,17 @@ pub struct Validator {
 }
 
 impl Validator {
+    /// Check if a parameter is in hexadecimal base
+    /// 
+    /// ## Arguments
+    /// 
+    /// - `params` - A vector with all parameters of the instruction or variable
+    /// 
+    /// ## Returns
+    /// 
+    /// - True if is in hexadecimal base
+    /// - False if is not in hexadecimal base
+    ///
     fn is_hex(params: &Vec<String>) -> bool {
         params.iter().all(|param: &String| {
             param.chars()
