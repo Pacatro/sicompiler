@@ -15,24 +15,6 @@ pub struct Validator {
 }
 
 impl Validator {
-    /// Checks if all strings in the given vector represent valid hexadecimal values.
-    /// 
-    /// ## Arguments
-    /// 
-    /// - `params` - A reference to a vector of strings to be checked.
-    /// 
-    /// ## Returns
-    /// 
-    /// - `bool` - Returns `true` if all strings in the vector are valid hexadecimal values, otherwise `false`.
-    /// 
-    /// ## Example
-    /// 
-    /// ```
-    /// let params = vec!["1a", "2F", "4D"];
-    /// let result = is_hex(&params);
-    /// assert_eq!(result, true);
-    /// ```
-    /// 
     fn is_hex(params: &Vec<String>) -> bool {
         params.iter().all(|param: &String| {
             param.chars()

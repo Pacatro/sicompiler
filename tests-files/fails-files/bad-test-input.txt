@@ -1,0 +1,13 @@
+0 0003
+1 0003
+3 JDHFKJDSGFJH
+
+*** multiline
+comment ***
+
+@
+JDFJKD
+@
+
+ADD ;One line comment
+HALT 2

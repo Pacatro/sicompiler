@@ -1,0 +1,13 @@
+0 0003
+1 0003
+3 0000
+
+*** multiline
+comment ***
+
+@
+6
+@
+
+ADD 1 ;One line comment
+HALT

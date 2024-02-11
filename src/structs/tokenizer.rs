@@ -12,27 +12,6 @@ pub struct Tokenizer {
 }
 
 impl Tokenizer {
-    /// Removes one-line comments and trims leading and trailing whitespace from each line in the input content.
-    ///
-    /// # Arguments
-    ///
-    /// - `content` - A string containing the content with one-line comments.
-    ///
-    /// # Returns
-    ///
-    /// A new string with one-line comments removed and leading/trailing whitespace trimmed from each line.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// let content = "This is a line without comments\n
-    ///                This is a line with a comment ;This is a one-line comment\n
-    ///                Another line without comments";
-    ///
-    /// let result = remove_oneline_comments(content);
-    /// assert_eq!(result, "This is a line without comments;\nThis is a line with a comment\nAnother line without comments;");
-    /// ```
-    ///
     fn remove_oneline_comments(content: &str) -> String {
         content.lines()
             .map(|line: &str| {
@@ -49,36 +28,6 @@ impl Tokenizer {
             .join("\n")
     }
 
-    /// Removes multiline comments enclosed by '***' from the input content.
-    ///
-    /// # Arguments
-    ///
-    /// - `content` - A string containing the content with multiline comments.
-    ///
-    /// # Returns
-    ///
-    /// A new string with multiline comments removed.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// let content = "This is a line without comments.\n
-    ///                *** This 
-    ///                 is a multiline 
-    ///                 comment ***\n
-    ///                Another line without comments.";
-    ///
-    /// let result = remove_multiline_comments(content);
-    /// assert_eq!(result, "This is a line without comments.\nAnother line without comments.\n");
-    /// ```
-    ///
-    /// # Note
-    ///
-    /// - The function considers lines starting with '***' as the beginning of a comment block.
-    /// - It also considers lines ending with '***' as the end of a comment block.
-    /// - Lines within the comment block are ignored and not included in the result.
-    /// - The function preserves non-comment lines in the result.
-    ///
     fn remove_multiline_comments(content: &str) -> String {
         let mut result: String = String::new();
         let mut in_comment: bool = false;
@@ -114,17 +63,14 @@ impl Tokenizer {
     /// A vector of `Instruction` instances.
     /// 
     fn tokenize_instructions(section: &str) -> Vec<Instruction> {
-        let mut instructions: Vec<Instruction> = Vec::new();
-        
-        for token in section.lines() {
-            if token.is_empty() { continue }
-            
-            let parts: Vec<&str> = token.split_whitespace().collect();
-
-            instructions.push(Instruction::new(parts[0], parts[1..].to_vec()));
-        }
-
-        instructions
+        section
+            .lines()
+            .filter(|token| !token.is_empty())
+            .map(|token| {
+                let parts: Vec<&str> = token.split_whitespace().collect();
+                Instruction::new(parts[0], parts[1..].to_vec())
+            })
+            .collect()
     }
 
     /// Tokenizes varibles 
@@ -144,7 +90,9 @@ impl Tokenizer {
             let parts: Vec<&str> = token.split_whitespace().collect();
             
             if parts.len() != 2 { 
-                return Err(SicompilerError::TokenizationError(format!("Invalid variable format, the correct way is <DIR NAME>")));
+                return Err(
+                    SicompilerError::TokenizationError(format!("Invalid variable format, the correct way is <DIR NAME>"))
+                );
             }
 
             variables.push(Variable::new(parts[0], parts[1]));
@@ -310,5 +258,132 @@ impl Tokenizer {
         }
 
         Ok(Program::new(variables, init, instructions))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use crate::models::{
+        instruction::Instruction, 
+        variable::Variable, 
+        init::Init, 
+        program::Program
+    };
+
+    use crate::errors::error::SicompilerError;
+
+    use super::Tokenizer;
+
+    #[test]
+    fn test_remove_one_line_comment() {
+        let content: &str = "This is a line without comments
+This is a line with a comment ;This is a one-line comment
+Another line without comments";
+
+        let result: String = Tokenizer::remove_oneline_comments(content);
+        assert_eq!(result, "This is a line without comments\nThis is a line with a comment \nAnother line without comments");
+    }
+
+    #[test]
+    fn test_remove_multi_line_comment() {
+        let content = "This is a line without comments.
+*** This 
+is a multiline 
+comment ***
+Another line without comments.";
+    
+        let result: String = Tokenizer::remove_multiline_comments(content);
+        assert_eq!(result, "This is a line without comments.\nAnother line without comments.\n");
+    }
+
+    #[test]
+    fn test_tokenize_instructions() {
+        let section: &str = "HALT\nADD 1";
+        let instructions: Vec<Instruction> = Tokenizer::tokenize_instructions(section);
+
+        assert_eq!(instructions.len(), 2);
+        assert_eq!(instructions[0].mnemonic(), "HALT");
+        assert_eq!(instructions[0].params().len(), 0);
+        assert_eq!(instructions[1].mnemonic(), "ADD");
+        assert_eq!(instructions[1].params().len(), 1);
+    }
+
+    #[test]
+    fn test_tokenize_variables() -> Result<(), SicompilerError> {
+        let section: &str = "1 0003\n3 0000";
+
+        let variables: Vec<Variable> = Tokenizer::tokenize_variables(section)?;
+
+        assert_eq!(variables.len(), 2);
+        assert_eq!(variables[0].dir(), "1");
+        assert_eq!(variables[0].name(), "0003");
+        assert_eq!(variables[1].dir(), "3");
+        assert_eq!(variables[1].name(), "0000");
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_tokenize_init() -> Result<(), SicompilerError> {
+        let section: &str = "1";
+        let init: Init = Tokenizer::tokenize_init(section)?;
+
+        assert_eq!(init.dir(), "1");
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_tokenize() -> Result<(), SicompilerError> {
+        let tokenizer: Tokenizer = Tokenizer::new("tests-files/test-input.txt", "tests-files/test-repertoire.rep");
+        let program: Program = tokenizer.tokenize()?;
+
+        assert_eq!(program.variables().len(), 3);
+        assert_eq!(program.init().dir(), "6");
+        assert_eq!(program.instructions().len(), 2);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_tokenize_repertoire() -> Result<(), SicompilerError> {
+        let tokenizer: Tokenizer = Tokenizer::new("tests-files/test-input.txt", "tests-files/test-repertoire.rep");
+        let repertoire: HashMap<String, Instruction> = tokenizer.tokenize_repertoire()?;
+
+        assert_eq!(repertoire.len(), 2);
+        assert_eq!(repertoire.get("HALT").unwrap().mnemonic(), "HALT");
+        assert_eq!(repertoire.get("HALT").unwrap().params().len(), 0);
+        assert_eq!(repertoire.get("ADD").unwrap().mnemonic(), "ADD");
+        assert_eq!(repertoire.get("ADD").unwrap().params().len(), 1);
+        Ok(())
+    }
+
+    #[test]
+    fn test_tokenize_empty_file() {
+        let tokenizer: Tokenizer = Tokenizer::new("tests-files/fails-files/empty-file.txt", "tests-files/test-repertoire.rep");
+        let result: Result<Program, SicompilerError> = tokenizer.tokenize();
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().to_string(), "Tokenization error: The file is empty");
+    }
+
+    #[test]
+    fn test_tokenize_invalid_file() {
+        let tokenizer: Tokenizer = Tokenizer::new("tests-files/fails-files/invalid-file.txt", "tests-files/test-repertoire.rep");
+        let result: Result<Program, SicompilerError> = tokenizer.tokenize();
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().to_string(), "Tokenization error: Invalid number of sections, must be 3 but get 1");
+    }
+
+    #[test]
+    fn test_tokenize_invalid_repertoire() {
+        let tokenizer: Tokenizer = Tokenizer::new("tests-files/test-input.txt", "tests-files/fails-files/invalid-repertoire.rep");
+        let result: Result<HashMap<String, Instruction>, SicompilerError> = tokenizer.tokenize_repertoire();
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().to_string(), "Tokenization error: Invalid repertoire structure, the file must contain a microprogram section.");
     }
 }
