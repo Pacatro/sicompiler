@@ -276,10 +276,154 @@ ADD 1
         );
 
         let validator: Validator = Validator::new(tokens, "");
-
         let result: Result<(), SicompilerError> = validator.validate_program();
 
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "Validation error: There is not any instructions or variables section");
+    }
+
+    #[test]
+    fn test_validate_variables() {
+        let tokens: Program = Program::new(
+            vec![Variable::new("A", "B")],
+            Init::new("2"),
+            vec![Instruction::new("ADD", vec!["1"])]
+        );
+
+        let validator: Validator = Validator::new(tokens, "");
+
+        assert!(validator.validate_variables().is_ok());
+
+        let tokens: Program = Program::new(
+            vec![Variable::new("HHHHH", "UUUUU")],
+            Init::new("2"),
+            vec![Instruction::new("ADD", vec!["1"])]
+        );
+
+        let validator: Validator = Validator::new(tokens, "");
+        let result: Result<(), SicompilerError> = validator.validate_variables();
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().to_string(), "Validation error: The varibale dir and name must be in hex base 'HHHHH UUUUU'");
+    }
+
+    #[test]
+    fn test_validate_init() {
+        let tokens: Program = Program::new(
+            vec![Variable::new("A", "B")],
+            Init::new("2"),
+            vec![Instruction::new("ADD", vec!["1"])]
+        );
+
+        let validator: Validator = Validator::new(tokens, "");
+
+        assert!(validator.validate_init().is_ok());
+
+        let tokens: Program = Program::new(
+            vec![Variable::new("A", "B")],
+            Init::new("GGGGG"),
+            vec![Instruction::new("ADD", vec!["1"])]
+        );
+
+        let validator: Validator = Validator::new(tokens, "");
+        let result: Result<(), SicompilerError> = validator.validate_init();
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().to_string(), "Validation error: The init dir must be in hex base 'GGGGG'");
+    }
+
+    #[test]
+    fn test_validate_instructions() {
+        let repertoire: HashMap<String, Instruction> = HashMap::from([
+            ("ADD".to_string(), Instruction::new("ADD", vec!["0x123"])),
+            ("HALT".to_string(), Instruction::new("HALT", vec![]))
+        ]);
+        
+        let tokens: Program = Program::new(
+            vec![Variable::new("A", "B")],
+            Init::new("2"),
+            vec![Instruction::new("ADD", vec!["1"])]
+        );
+
+        let validator: Validator = Validator::new(tokens, "");
+
+        assert!(validator.validate_instructions(&repertoire).is_ok());
+
+        let tokens: Program = Program::new(
+            vec![Variable::new("A", "B")],
+            Init::new("2"),
+            vec![Instruction::new("SUB", vec!["1"])]
+        );
+
+        let validator: Validator = Validator::new(tokens, "");
+        let result: Result<(), SicompilerError> = validator.validate_instructions(&repertoire);
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().to_string(), "Validation error: Invalid instruction, 'SUB' does not appear in the repertoire");
+
+        let tokens: Program = Program::new(
+            vec![Variable::new("A", "B")],
+            Init::new("2"),
+            vec![Instruction::new("ADD", vec![])]
+        );
+
+        let validator: Validator = Validator::new(tokens, "");
+        let result: Result<(), SicompilerError> = validator.validate_instructions(&repertoire);
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().to_string(), "Validation error: The instruction 'ADD' must have some parameters");
+
+        let tokens: Program = Program::new(
+            vec![Variable::new("A", "B")],
+            Init::new("2"),
+            vec![Instruction::new("ADD", vec!["1", "2"])]
+        );
+
+        let validator: Validator = Validator::new(tokens, "");
+        let result: Result<(), SicompilerError> = validator.validate_instructions(&repertoire);
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().to_string(), "Validation error: Invalid number of parameters in 'ADD', only has 1 but get 2");
+
+        let tokens: Program = Program::new(
+            vec![Variable::new("A", "B")],
+            Init::new("2"),
+            vec![Instruction::new("ADD", vec!["GGGGG"])]
+        );
+
+        let validator: Validator = Validator::new(tokens, "");
+        let result: Result<(), SicompilerError> = validator.validate_instructions(&repertoire);
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().to_string(), "Validation error: Invalid parameters in 'ADD', the parameters must be in hex base");
+    }
+
+    #[test]
+    fn test_validate() {
+        let repertoire: HashMap<String, Instruction> = HashMap::from([
+            ("ADD".to_string(), Instruction::new("ADD", vec!["0x123"])),
+            ("HALT".to_string(), Instruction::new("HALT", vec![]))
+        ]);
+
+        let tokens: Program = Program::new(
+            vec![Variable::new("A", "B")],
+            Init::new("2"),
+            vec![Instruction::new("ADD", vec!["1"])]
+        );
+
+        let validator: Validator = Validator::new(tokens, "tests-files/test.txt");
+
+        assert!(validator.validate(&repertoire).is_ok());
+
+        let tokens: Program = Program::new(
+            vec![Variable::new("HHHHH", "UUUUU")],
+            Init::new("2"),
+            vec![Instruction::new("ADD", vec!["1"])]
+        );
+
+        let validator: Validator = Validator::new(tokens, "tests-files/test.txt");
+        let result: Result<(), SicompilerError> = validator.validate(&repertoire);
+
+        assert!(result.is_err());
     }
 }
