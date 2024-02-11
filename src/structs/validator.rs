@@ -213,3 +213,73 @@ impl Validator {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::models::{
+        init::Init, 
+        variable::Variable,
+        instruction::Instruction, 
+        program::Program, 
+    };
+
+    use super::*;
+
+    #[test]
+    fn test_is_hex() {
+        let good_params: Vec<String> = vec!["ABCD".to_string(), "1234".to_string()];
+        let bad_params: Vec<String> = vec!["GGGGG".to_string(), "845648".to_string()];
+        
+        assert!(Validator::is_hex(&good_params));
+        assert!(!Validator::is_hex(&bad_params));
+    }
+
+    #[test]
+    fn test_write_file() {
+        let tokens: Program = Program::new(
+            vec![Variable::new("A", "B")], 
+            Init::new("2"), 
+            vec![Instruction::new("ADD", vec!["1"])]
+        );
+
+        let validator: Validator = Validator::new(tokens, "tests-files/test.txt");
+
+        assert!(validator.write_file().is_ok());
+
+        let content: String = std::fs::read_to_string("tests-files/test.txt").unwrap();
+        let expected_content: &str = "A B
+@
+2
+@
+ADD 1
+";
+
+        assert_eq!(content, expected_content);
+    }
+
+    #[test]
+    fn test_validate_program() {
+        let tokens: Program = Program::new(
+            vec![Variable::new("A", "B")],
+            Init::new("2"),
+            vec![Instruction::new("ADD", vec!["1"])]
+        );
+
+        let validator: Validator = Validator::new(tokens, "");
+
+        assert!(validator.validate_program().is_ok());
+
+        let tokens: Program = Program::new(
+            vec![Variable::new("A", "B")],
+            Init::new("2"),
+            vec![]
+        );
+
+        let validator: Validator = Validator::new(tokens, "");
+
+        let result: Result<(), SicompilerError> = validator.validate_program();
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().to_string(), "Validation error: There is not any instructions or variables section");
+    }
+}
