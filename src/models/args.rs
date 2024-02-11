@@ -6,7 +6,7 @@ pub struct Cli {
     /// The input path to compile
     pub input_path: String,
 
-    #[clap(default_value = "out.txt")]
+    #[arg(short = 'o', long = "out", default_value = "out.txt")]
     /// The output path to write to
     pub output_path: String,
 

@@ -1,17 +1,14 @@
-# SiCompiler v0.1.1
+# SiCompiler v1.0.0
 
-This is a compiler that process files for be using in the SiCoMe simulator realized by the University of Cordoba (UCO), also check for syntax errors in your program.
+This is a simple project that check for syntax errors in your SiCoMe program realized by the University of Cordoba (UCO).
 
 You can see this project also in [Crates.io](https://crates.io/crates/sicompiler)
-
-> [!WARNING]
-> These project is not complete, don't hesitate to report any bug you find
 
 ## 🛠️ Instalation
 
 ### Using cargo
 
-You must have [Rust](https://www.rust-lang.org/es/tools/install) installed with rustup:
+You must have [Rust](https://www.rust-lang.org/es/tools/install) installed:
 
 ```terminal
 cargo install sicompiler
@@ -19,24 +16,26 @@ cargo install sicompiler
 
 ## ✏️ How to use
 
-The only thing you need to do is write the next command in the directory you have the executable.
+To use sicompiler you need to have a `.txt` file where you write your program and a `.rep` file with the valid instructions.
 
 ### Execution
 
 ```terminal
-sicompiler --rep <REPERTOIRE_PATH> <INPUT_PATH> [OUTPUT_PATH]
+sicompiler --rep <REPERTOIRE_PATH> <INPUT_PATH>
 ```
 
 ### Arguments
 
 ```terminal
 <INPUT_PATH>   The input path to compile
+<REPERTOIRE_PATH> The repertoire of instructions
 [OUTPUT_PATH]  The output path to write to [default: out.txt]
 ```
 
 ### Options
 
 ```terminal
+-o, --out <OUTPUT_PATH>      The output path to write to [default: out.txt]
 -r, --rep <REPERTOIRE_PATH>  The repertoire of instructions
 -h, --help                   Print help
 -V, --version                Print version
@@ -47,9 +46,9 @@ The result will be an output file with the path you write or a default path in t
 ### Input
 
 ```termial
-0 0003  ;Number 1
-1 0003  ;Number 2
-3 0000  ;Resul
+0 0003  #Number 1
+1 0003  #Number 2
+3 0000  #Result
 
 *** This is a 
 multi-line comment ***
@@ -63,9 +62,9 @@ CRF
 ADD 0001
 ROR_F_ACC
 SFZ
-JMP 12  ;F!=0
+JMP 12  #F!=0
 
-;-----F==0-----
+#-----F==0-----
 CRA
 CRF
 ADD 0000
@@ -73,7 +72,7 @@ ROL_F_ACC
 STA 0004
 HALT
 
-;-----F!=0-----
+#-----F!=0-----
 CRA
 CRF
 ADD 0001
@@ -120,10 +119,10 @@ This compiler meets some standars that have been written resently.
 
 ### One-line comments
 
-The comments in one line will be specified by a semicolon `;`:
+The comments in one line will be specified by a `#`:
 
 ```terminal
-CRA 23 ;One line comment
+CRA 23 #One line comment
 ```
 
 ### Multi-line comments
@@ -149,35 +148,6 @@ A program is divided into three clearly differentiated sections, each of them se
 <sentences>
 ```
 
-#### Program example
-
-```terminal
-0 0003
-1 0003
-3 0000
-@
-6
-@
-CRA 
-CRF 
-ADD 0001
-ROR_F_ACC 
-SFZ 
-JMP 12
-CRA 
-CRF 
-ADD 0000
-ROL_F_ACC 
-STA 0004
-HALT 
-CRA 
-CRF 
-ADD 0001
-ROL_F_ACC 
-STA 0004
-HALT 
-```
-
 ### Repertoire structure
 
 A `repertoire` of instructions is the set of instructions that can be in the SiCoMe program.
@@ -189,35 +159,6 @@ $
 <microprogram section> (Not implemented)
 $
 <valid instructions>
-```
-
-#### Repertoire example
-
-```terminal
-$
-CB 4000100
-CB 0201100
-CB 3000300
-$
-HALT false 0
-CRA false 8200
-CTA false 10200
-ITA false 18200
-CRF false B0200
-CTF false B8200
-SFZ false 400 200200
-SFZ_R false 200500
-ROR_F_ACC false 38200
-ROL_F_ACC false 30200
-ADD true 8000100 1100 28200
-ADDI true 8000100 1100 8000100 1100 28200
-STA true 8000100 2100 1000200
-JMP true 400200
-JMPI true 8000100 1100 400200
-CSR true 8000100 403100 1000100 200200
-CSR_R true 8000100 403100 1200200
-ISZ true 8000100 1100 4100 1000100 600 200200
-ISZ_R true 8000100 1100 4100 1000100 200700
 ```
 
 ### Error cases
@@ -243,14 +184,16 @@ cd sicompiler
 cargo build
 ```
 
+### Tests
+
+There are unit tests for the principals structs `Tokenizer` and `Validator` and only two integration tests.
+
+To execute tests you only need to run the following command:
+
+```bash
+cargo test
+```
+
 ## 🔑 License
 
 [MIT](https://opensource.org/license/mit/) - Created by **P4k0**.
-
-## TODOs 🏁
-
-- [x] Refactoring
-- [x] Custom Errors
-- [ ] Write tests
-- [ ] Figure out how many params can have each instruction
-- [ ] Write some new docs

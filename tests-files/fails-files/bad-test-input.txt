@@ -9,5 +9,5 @@ comment ***
 JDFJKD
 @
 
-ADD ;One line comment
+ADD #One line comment
 HALT 2

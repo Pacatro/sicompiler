@@ -7,5 +7,5 @@ comment ***
 
 
 
-ADD 1 ;One line comment
+ADD 1 #One line comment
 HALT

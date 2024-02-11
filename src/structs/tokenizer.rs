@@ -26,7 +26,7 @@ impl Tokenizer {
                 let trimmed_line: &str = line.trim();
                 if trimmed_line.is_empty() {
                     String::from(line)
-                } else if let Some(index) = trimmed_line.find(';') {
+                } else if let Some(index) = trimmed_line.find('#') {
                     String::from(&trimmed_line[..index])
                 } else {
                     String::from(trimmed_line)
@@ -289,7 +289,7 @@ mod tests {
     #[test]
     fn test_remove_one_line_comment() {
         let content: &str = "This is a line without comments
-This is a line with a comment ;This is a one-line comment
+This is a line with a comment #This is a one-line comment
 Another line without comments";
 
         let result: String = Tokenizer::remove_oneline_comments(content);
@@ -298,7 +298,7 @@ Another line without comments";
 
     #[test]
     fn test_remove_multi_line_comment() {
-        let content = "This is a line without comments.
+        let content: &str = "This is a line without comments.
 *** This 
 is a multiline 
 comment ***

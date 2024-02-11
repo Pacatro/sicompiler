@@ -9,5 +9,5 @@ comment ***
 6
 @
 
-ADD 1 ;One line comment
+ADD 1 #One line comment
 HALT
