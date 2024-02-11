@@ -233,8 +233,8 @@ impl Tokenizer {
     /// 
     pub fn tokenize(&self) -> Result<Program, SicompilerError> {
         let mut content: String = fs::read_to_string(&self.input)
-            .map_err(|e: io::Error| 
-                SicompilerError::Io(io::Error::new(e.kind(), format!("Can't open {}", self.input)))
+            .map_err(|err: io::Error| 
+                SicompilerError::Io(io::Error::new(err.kind(), format!("Can't open {}", self.input)))
             )?;
         
         if content.is_empty() { 
@@ -260,12 +260,6 @@ impl Tokenizer {
         let mut init: Init = Init::new("");
         if let Some(init_section) = sections.get(1) {
             init = Tokenizer::tokenize_init(init_section)?;
-        }
-
-        if init.dir().is_empty() {
-            return Err(SicompilerError::TokenizationError(
-                format!("No init dir found")
-            ));
         }
         
         let mut instructions: Vec<Instruction> = Vec::new();
@@ -342,6 +336,16 @@ Another line without comments.";
     }
 
     #[test]
+    fn test_tokenize_variables_fails() {
+        let section: &str = "1=0003\n3 = 0000\n";
+
+        let result: Result<Vec<Variable>, SicompilerError> = Tokenizer::tokenize_variables(section);
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().to_string(), "Tokenization error: Invalid variable format, the correct way is <DIR NAME>");
+    }
+
+    #[test]
     fn test_tokenize_init() -> Result<(), SicompilerError> {
         let section: &str = "1";
         let init: Init = Tokenizer::tokenize_init(section)?;
@@ -349,6 +353,67 @@ Another line without comments.";
         assert_eq!(init.dir(), "1");
 
         Ok(())
+    }
+
+    #[test]
+    fn test_tokenize_init_no_init_section() {
+        let section: &str = "";
+
+        let result: Result<Init, SicompilerError> = Tokenizer::tokenize_init(section);
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().to_string(), "Tokenization error: There is no any Init section.");
+    }
+
+    #[test]
+    fn test_tokenize_init_no_init_address() {
+        let section: &str = " ";
+
+        let result: Result<Init, SicompilerError> = Tokenizer::tokenize_init(section);
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().to_string(), "Tokenization error: There is no any Init address.");
+    }
+
+    #[test]
+    fn test_tokenize_init_more_address() {
+        let section: &str = "2 3 5";
+
+        let result: Result<Init, SicompilerError> = Tokenizer::tokenize_init(section);
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().to_string(), "Tokenization error: There is more than one Init address.");
+    }
+
+    #[test]
+    fn test_tokenize_repertoire() -> Result<(), SicompilerError> {
+        let tokenizer: Tokenizer = Tokenizer::new("tests-files/test-input.txt", "tests-files/test-repertoire.rep");
+        let repertoire: HashMap<String, Instruction> = tokenizer.tokenize_repertoire()?;
+
+        assert_eq!(repertoire.len(), 2);
+        assert_eq!(repertoire.get("HALT").unwrap().mnemonic(), "HALT");
+        assert_eq!(repertoire.get("HALT").unwrap().params().len(), 0);
+        assert_eq!(repertoire.get("ADD").unwrap().mnemonic(), "ADD");
+        assert_eq!(repertoire.get("ADD").unwrap().params().len(), 1);
+        Ok(())
+    }
+
+    #[test]
+    fn test_tokenize_invalid_repertoire() {
+        let tokenizer: Tokenizer = Tokenizer::new("tests-files/test-input.txt", "tests-files/fails-files/invalid-repertoire.rep");
+        let result: Result<HashMap<String, Instruction>, SicompilerError> = tokenizer.tokenize_repertoire();
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().to_string(), "Tokenization error: Invalid repertoire structure, the file must contain a microprogram section.");
+    }
+
+    #[test]
+    fn test_tokenize_repertoire_invalid_number_instruction()  {
+        let tokenizer: Tokenizer = Tokenizer::new("tests-files/test-input.txt", "tests-files/fails-files/more-instructions-rep.rep");
+        let result: Result<HashMap<String, Instruction>, SicompilerError> = tokenizer.tokenize_repertoire();
+
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().to_string(), "Tokenization error: Invalid number of instructions, the max is 32 but get 35");
     }
 
     #[test]
@@ -364,16 +429,12 @@ Another line without comments.";
     }
 
     #[test]
-    fn test_tokenize_repertoire() -> Result<(), SicompilerError> {
-        let tokenizer: Tokenizer = Tokenizer::new("tests-files/test-input.txt", "tests-files/test-repertoire.rep");
-        let repertoire: HashMap<String, Instruction> = tokenizer.tokenize_repertoire()?;
+    fn test_tokenize_cant_open_file() {
+        let tokenizer: Tokenizer = Tokenizer::new("tests-files/fails-files/no-exits-file.txt", "tests-files/test-repertoire.rep");
+        let result: Result<Program, SicompilerError> = tokenizer.tokenize();
 
-        assert_eq!(repertoire.len(), 2);
-        assert_eq!(repertoire.get("HALT").unwrap().mnemonic(), "HALT");
-        assert_eq!(repertoire.get("HALT").unwrap().params().len(), 0);
-        assert_eq!(repertoire.get("ADD").unwrap().mnemonic(), "ADD");
-        assert_eq!(repertoire.get("ADD").unwrap().params().len(), 1);
-        Ok(())
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().to_string(), "I/O error: Can't open tests-files/fails-files/no-exits-file.txt");
     }
 
     #[test]
@@ -392,14 +453,5 @@ Another line without comments.";
 
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "Tokenization error: Invalid number of sections, must be 3 but get 1");
-    }
-
-    #[test]
-    fn test_tokenize_invalid_repertoire() {
-        let tokenizer: Tokenizer = Tokenizer::new("tests-files/test-input.txt", "tests-files/fails-files/invalid-repertoire.rep");
-        let result: Result<HashMap<String, Instruction>, SicompilerError> = tokenizer.tokenize_repertoire();
-
-        assert!(result.is_err());
-        assert_eq!(result.unwrap_err().to_string(), "Tokenization error: Invalid repertoire structure, the file must contain a microprogram section.");
     }
 }
