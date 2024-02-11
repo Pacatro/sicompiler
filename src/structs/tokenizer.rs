@@ -321,33 +321,31 @@ Another line without comments.";
     }
 
     #[test]
-    fn test_tokenize_variables() -> Result<(), SicompilerError> {
+    fn test_tokenize_variables() {
         let section: &str = "1 0003\n3 0000";
+        let result: Result<Vec<Variable>, SicompilerError> = Tokenizer::tokenize_variables(section);
 
-        let variables: Vec<Variable> = Tokenizer::tokenize_variables(section)?;
-
-        assert_eq!(variables.len(), 2);
-        assert_eq!(variables[0].dir(), "1");
-        assert_eq!(variables[0].name(), "0003");
-        assert_eq!(variables[1].dir(), "3");
-        assert_eq!(variables[1].name(), "0000");
+        assert!(result.is_ok());
+        assert_eq!(result.as_ref().unwrap().len(), 2);
+        assert_eq!(result.as_ref().unwrap()[0].dir(), "1");
+        assert_eq!(result.as_ref().unwrap()[0].name(), "0003");
+        assert_eq!(result.as_ref().unwrap()[1].dir(), "3");
+        assert_eq!(result.as_ref().unwrap()[1].name(), "0000");
 
         let section: &str = "1=0003\n3 = 0000\n";
-
         let result: Result<Vec<Variable>, SicompilerError> = Tokenizer::tokenize_variables(section);
 
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "Tokenization error: Invalid variable format, the correct way is <DIR NAME>");
-
-        Ok(())
     }
 
     #[test]
-    fn test_tokenize_init() -> Result<(), SicompilerError> {
+    fn test_tokenize_init() {
         let section: &str = "1";
-        let init: Init = Tokenizer::tokenize_init(section)?;
+        let init: Result<Init, SicompilerError> = Tokenizer::tokenize_init(section);
 
-        assert_eq!(init.dir(), "1");
+        assert!(init.is_ok());
+        assert_eq!(init.unwrap().dir(), "1");
 
         let section: &str = "";
         let result: Result<Init, SicompilerError> = Tokenizer::tokenize_init(section);
@@ -366,20 +364,20 @@ Another line without comments.";
     
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "Tokenization error: There is more than one Init address.");
-        
-        Ok(())
+    
     }
 
     #[test]
-    fn test_tokenize_repertoire() -> Result<(), SicompilerError> {
+    fn test_tokenize_repertoire() {
         let tokenizer: Tokenizer = Tokenizer::new("tests-files/test-input.txt", "tests-files/test-repertoire.rep");
-        let repertoire: HashMap<String, Instruction> = tokenizer.tokenize_repertoire()?;
+        let result: Result<HashMap<String, Instruction>, SicompilerError>=  tokenizer.tokenize_repertoire();
 
-        assert_eq!(repertoire.len(), 2);
-        assert_eq!(repertoire.get("HALT").unwrap().mnemonic(), "HALT");
-        assert_eq!(repertoire.get("HALT").unwrap().params().len(), 0);
-        assert_eq!(repertoire.get("ADD").unwrap().mnemonic(), "ADD");
-        assert_eq!(repertoire.get("ADD").unwrap().params().len(), 1);
+        assert!(result.is_ok());
+        assert_eq!(result.as_ref().unwrap().len(), 2);
+        assert_eq!(result.as_ref().unwrap().get("HALT").unwrap().mnemonic(), "HALT");
+        assert_eq!(result.as_ref().unwrap().get("HALT").unwrap().params().len(), 0);
+        assert_eq!(result.as_ref().unwrap().get("ADD").unwrap().mnemonic(), "ADD");
+        assert_eq!(result.as_ref().unwrap().get("ADD").unwrap().params().len(), 1);
         
         let tokenizer: Tokenizer = Tokenizer::new("tests-files/test-input.txt", "tests-files/fails-files/invalid-repertoire.rep");
         let result: Result<HashMap<String, Instruction>, SicompilerError> = tokenizer.tokenize_repertoire();
@@ -392,18 +390,17 @@ Another line without comments.";
 
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "Tokenization error: Invalid number of instructions, the max is 32 but get 35");
-
-        Ok(())
     }
 
     #[test]
-    fn test_tokenize() -> Result<(), SicompilerError> {
+    fn test_tokenize() {
         let tokenizer: Tokenizer = Tokenizer::new("tests-files/test-input.txt", "tests-files/test-repertoire.rep");
-        let program: Program = tokenizer.tokenize()?;
+        let result: Result<Program, SicompilerError> = tokenizer.tokenize();
 
-        assert_eq!(program.variables().len(), 3);
-        assert_eq!(program.init().dir(), "6");
-        assert_eq!(program.instructions().len(), 2);
+        assert!(result.is_ok());
+        assert_eq!(result.as_ref().unwrap().variables().len(), 3);
+        assert_eq!(result.as_ref().unwrap().init().dir(), "6");
+        assert_eq!(result.as_ref().unwrap().instructions().len(), 2);
 
         let tokenizer: Tokenizer = Tokenizer::new("tests-files/fails-files/no-exits-file.txt", "tests-files/test-repertoire.rep");
         let result: Result<Program, SicompilerError> = tokenizer.tokenize();
@@ -422,7 +419,6 @@ Another line without comments.";
         
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "Tokenization error: Invalid number of sections, must be 3 but get 1");
-        
-        Ok(())
+    
     }
 }
