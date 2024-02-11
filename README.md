@@ -1,6 +1,6 @@
 # SiCompiler v1.0.0
 
-This is a simple project that check for syntax errors in your SiCoMe program realized by the University of Cordoba (UCO).
+This is a simple project that check for syntax errors in your SiCoMe program.
 
 You can see this project also in [Crates.io](https://crates.io/crates/sicompiler)
 
