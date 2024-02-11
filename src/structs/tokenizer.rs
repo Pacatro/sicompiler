@@ -284,7 +284,7 @@ mod tests {
 
     use crate::errors::error::SicompilerError;
 
-    use super::Tokenizer;
+    use super::*;
 
     #[test]
     fn test_remove_one_line_comment() {
@@ -332,17 +332,14 @@ Another line without comments.";
         assert_eq!(variables[1].dir(), "3");
         assert_eq!(variables[1].name(), "0000");
 
-        Ok(())
-    }
-
-    #[test]
-    fn test_tokenize_variables_fails() {
         let section: &str = "1=0003\n3 = 0000\n";
 
         let result: Result<Vec<Variable>, SicompilerError> = Tokenizer::tokenize_variables(section);
 
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "Tokenization error: Invalid variable format, the correct way is <DIR NAME>");
+
+        Ok(())
     }
 
     #[test]
@@ -352,37 +349,25 @@ Another line without comments.";
 
         assert_eq!(init.dir(), "1");
 
-        Ok(())
-    }
-
-    #[test]
-    fn test_tokenize_init_no_init_section() {
         let section: &str = "";
-
         let result: Result<Init, SicompilerError> = Tokenizer::tokenize_init(section);
 
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "Tokenization error: There is no any Init section.");
-    }
 
-    #[test]
-    fn test_tokenize_init_no_init_address() {
         let section: &str = " ";
-
         let result: Result<Init, SicompilerError> = Tokenizer::tokenize_init(section);
-
+    
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "Tokenization error: There is no any Init address.");
-    }
-
-    #[test]
-    fn test_tokenize_init_more_address() {
+        
         let section: &str = "2 3 5";
-
         let result: Result<Init, SicompilerError> = Tokenizer::tokenize_init(section);
-
+    
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "Tokenization error: There is more than one Init address.");
+        
+        Ok(())
     }
 
     #[test]
@@ -395,25 +380,20 @@ Another line without comments.";
         assert_eq!(repertoire.get("HALT").unwrap().params().len(), 0);
         assert_eq!(repertoire.get("ADD").unwrap().mnemonic(), "ADD");
         assert_eq!(repertoire.get("ADD").unwrap().params().len(), 1);
-        Ok(())
-    }
-
-    #[test]
-    fn test_tokenize_invalid_repertoire() {
+        
         let tokenizer: Tokenizer = Tokenizer::new("tests-files/test-input.txt", "tests-files/fails-files/invalid-repertoire.rep");
         let result: Result<HashMap<String, Instruction>, SicompilerError> = tokenizer.tokenize_repertoire();
-
+    
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "Tokenization error: Invalid repertoire structure, the file must contain a microprogram section.");
-    }
-
-    #[test]
-    fn test_tokenize_repertoire_invalid_number_instruction()  {
+        
         let tokenizer: Tokenizer = Tokenizer::new("tests-files/test-input.txt", "tests-files/fails-files/more-instructions-rep.rep");
         let result: Result<HashMap<String, Instruction>, SicompilerError> = tokenizer.tokenize_repertoire();
 
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "Tokenization error: Invalid number of instructions, the max is 32 but get 35");
+
+        Ok(())
     }
 
     #[test]
@@ -425,33 +405,24 @@ Another line without comments.";
         assert_eq!(program.init().dir(), "6");
         assert_eq!(program.instructions().len(), 2);
 
-        Ok(())
-    }
-
-    #[test]
-    fn test_tokenize_cant_open_file() {
         let tokenizer: Tokenizer = Tokenizer::new("tests-files/fails-files/no-exits-file.txt", "tests-files/test-repertoire.rep");
         let result: Result<Program, SicompilerError> = tokenizer.tokenize();
-
+    
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "I/O error: Can't open tests-files/fails-files/no-exits-file.txt");
-    }
-
-    #[test]
-    fn test_tokenize_empty_file() {
+        
         let tokenizer: Tokenizer = Tokenizer::new("tests-files/fails-files/empty-file.txt", "tests-files/test-repertoire.rep");
         let result: Result<Program, SicompilerError> = tokenizer.tokenize();
-
+    
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "Tokenization error: The file is empty");
-    }
-
-    #[test]
-    fn test_tokenize_invalid_file() {
+        
         let tokenizer: Tokenizer = Tokenizer::new("tests-files/fails-files/invalid-file.txt", "tests-files/test-repertoire.rep");
         let result: Result<Program, SicompilerError> = tokenizer.tokenize();
-
+        
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "Tokenization error: Invalid number of sections, must be 3 but get 1");
+        
+        Ok(())
     }
 }
