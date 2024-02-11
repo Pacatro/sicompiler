@@ -1,4 +1,4 @@
-# SiCompiler v1.0.0
+# SiCompiler
 
 This is a simple project that check for syntax errors in your SiCoMe program.
 
